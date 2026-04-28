@@ -222,6 +222,81 @@
 .welcome-icon{font-size:48px;animation:float 1.5s ease-in-out infinite alternate;}
 @keyframes float{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 
+
+/* ── DARK MODE ── */
+[data-theme="dark"]{
+  --navy:#e8e8f8;
+  --navy2:#d0d0e8;
+  --white:#1a1b2e;
+  --off-white:#13141f;
+  --grey1:#1e2035;
+  --grey2:#2a2c45;
+  --grey3:#6b6d8a;
+  --grey4:#9090b0;
+  --text:#e8e8f8;
+  --text2:#c0c0d8;
+  --text3:#8080a0;
+  --teal-pale:#0d2a27;
+}
+[data-theme="dark"] body{background:var(--off-white);color:var(--text);}
+[data-theme="dark"] header{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .logo-main{color:var(--navy);}
+[data-theme="dark"] .nav-link{color:var(--navy);}
+[data-theme="dark"] .nav-link:hover,[data-theme="dark"] .nav-link.active{background:var(--grey2);}
+[data-theme="dark"] .dropdown{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .dropdown a,[data-theme="dark"] .dropdown button{color:var(--text2);}
+[data-theme="dark"] .dropdown a:hover,[data-theme="dark"] .dropdown button:hover{background:var(--grey2);}
+[data-theme="dark"] aside{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .loc-card{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .modal{background:#1e2035;}
+[data-theme="dark"] .modal-overlay{background:rgba(0,0,0,0.8);}
+[data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea{background:#13141f;border-color:var(--grey2);color:var(--text);}
+[data-theme="dark"] .home-search-bar{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .home-search-bar input{background:transparent;color:var(--text);}
+[data-theme="dark"] .home-search-bar select{background:#1e2035;color:var(--text);}
+[data-theme="dark"] .featured-strip{background:#13141f;border-color:var(--grey2);}
+[data-theme="dark"] .featured-chip{background:#1e2035;border-color:var(--grey2);color:var(--text);}
+[data-theme="dark"] .fchip{background:#1e2035;border-color:var(--grey2);color:var(--text2);}
+[data-theme="dark"] .loc-list{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .loc-list-item:hover{background:var(--grey2);}
+[data-theme="dark"] .testimony-item{background:#13141f;border-color:var(--grey2);}
+[data-theme="dark"] .feed-item{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .equip-nav-card{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .model-card{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .reliability-block{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .price-table th{background:#13141f;}
+[data-theme="dark"] .price-table td{border-color:var(--grey2);}
+[data-theme="dark"] .price-table tr:nth-child(even) td{background:#13141f;}
+[data-theme="dark"] .science-box{background:#13141f;border-color:var(--grey2);}
+[data-theme="dark"] .auth-wall{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .share-box{background:#1e2035;border-color:var(--grey2);}
+[data-theme="dark"] .submit-modal{background:#1e2035;}
+[data-theme="dark"] .filter-drawer-panel{background:#1e2035;}
+[data-theme="dark"] .mobile-nav-drawer{background:#1e2035;}
+[data-theme="dark"] .nearby-card{background:#13141f;border-color:var(--grey2);}
+[data-theme="dark"] footer{background:#13141f;}
+
+/* Dark mode toggle button */
+.dark-toggle{
+  background:none;border:none;cursor:pointer;font-size:18px;
+  padding:6px;border-radius:var(--r);transition:background 0.12s;
+  color:var(--navy);line-height:1;
+}
+.dark-toggle:hover{background:var(--grey1);}
+
+
+/* ── NEARBY LOCATIONS ── */
+.nearby-section{margin-top:1.5rem;}
+.nearby-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+.nearby-card{
+  background:var(--grey1);border:1px solid var(--grey2);border-radius:var(--r2);
+  padding:10px 12px;cursor:pointer;transition:all 0.15s;
+}
+.nearby-card:hover{border-color:var(--teal);background:var(--teal-pale);}
+.nearby-card-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;line-height:1.3;}
+.nearby-card-meta{font-size:11px;color:var(--text3);}
+.nearby-card-dist{font-size:11px;font-weight:600;color:var(--teal2);}
+
 /* ── RESET & BASE ── */
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -1731,6 +1806,7 @@ footer a{color:var(--teal);text-decoration:none;}
     </nav>
 
     <div class="header-right">
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
       <button class="search-btn" onclick="document.getElementById('searchInput').focus();showDirectory();" title="Search">🔍</button>
       <a class="header-cta" href="#" onclick="openSubmit();return false;">+ Submit location</a>
       <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
@@ -5125,6 +5201,49 @@ function showEquipmentArticle(id) {
   if(article) { article.classList.add('active'); window.scrollTo(0,0); }
 }
 
+
+// ── DARK MODE ─────────────────────────────────────────────────────────────────
+function toggleDark(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('darkToggle').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('veil_theme', isDark ? 'light' : 'dark');
+}
+function initTheme(){
+  const saved = localStorage.getItem('veil_theme') || 
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('darkToggle');
+  if(btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+}
+
+// ── NEARBY LOCATIONS ──────────────────────────────────────────────────────────
+function haversineKm(lat1,lng1,lat2,lng2){
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function renderNearby(loc){
+  if(!loc.lat||!loc.lng||loc.lat===0) return '';
+  const nearby = LOCATIONS
+    .filter(x=>x.id!==loc.id && x.lat && x.lat!==0)
+    .map(x=>({...x, dist:haversineKm(loc.lat,loc.lng,x.lat,x.lng)}))
+    .sort((a,b)=>a.dist-b.dist)
+    .slice(0,3);
+  if(!nearby.length) return '';
+  return \`<div class="nearby-section">
+    <div class="modal-section-title">Nearby locations</div>
+    <div class="nearby-grid">
+      \${nearby.map(n=>\`<div class="nearby-card" onclick="closeModal('detailModal');setTimeout(()=>openLocation(\${n.id}),150)">
+        <div class="nearby-card-name">\${n.name}</div>
+        <div class="nearby-card-meta">\${n.city} · \${n.type}</div>
+        <div class="nearby-card-dist">\${n.dist<1?'<1':Math.round(n.dist)} km away</div>
+      </div>\`).join('')}
+    </div>
+  </div>\`;
+}
+
 // ── CATEGORY / QUICK FILTERS ─────────────────────────────────────────────────
 function filterByType(type){
   document.getElementById('typeGrid').querySelectorAll('.fchip').forEach(b=>{
@@ -5670,6 +5789,8 @@ function openLocation(id){
             <div class="test-text">"${r.text}"</div>
           </div>`).join('')
         : `<p style="font-size:14px;color:var(--text3);font-style:italic;">No testimonies yet — be the first to share your experience below.</p>`}
+      \${renderNearby(l)}
+
       <div class="add-testimony">
         <div class="modal-section-title">Share your experience</div>
         <div class="star-pick" id="starPick_${id}">${[1,2,3,4,5].map(n=>`<button class="star-pick-btn" onclick="pickStar(${id},${n})">★</button>`).join('')}</div>
@@ -6253,6 +6374,7 @@ function closeModal(id){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Show home immediately, auth runs in background
+initTheme();
 showHome();
 initAuth();
 checkShareParam();
