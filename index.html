@@ -1062,11 +1062,11 @@ footer a{color:var(--teal);text-decoration:none;}
 .book-strip{
   background:linear-gradient(135deg,var(--navy),#2d1b4e);
   border-radius:var(--r);padding:14px 16px;margin-bottom:1rem;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
 }
-.book-strip-text{color:rgba(255,255,255,0.8);font-size:13px;line-height:1.4;}
+.book-strip-text{color:rgba(255,255,255,0.8);font-size:13px;line-height:1.4;flex-shrink:0;min-width:140px;}
 .book-strip-text strong{color:var(--white);display:block;font-size:15px;margin-bottom:2px;}
-.book-strip-btns{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.book-strip-btns{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0;}
 .book-op-btn{
   font-size:12px;font-weight:700;padding:8px 14px;border-radius:var(--r);
   border:none;cursor:pointer;transition:opacity 0.12s;white-space:nowrap;
