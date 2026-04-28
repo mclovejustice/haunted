@@ -3097,29 +3097,38 @@ async function initAuth() {
   const isOAuthRedirect = window.location.hash.includes('access_token') || 
                           window.location.search.includes('code=');
 
-  // Clean the URL immediately if it's an OAuth redirect
-  if (isOAuthRedirect && window.history.replaceState) {
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
+  // IMPORTANT: Do NOT clean the URL before getSession() on PKCE flow.
+  // Supabase needs the code= parameter to exchange for a session token.
+  // We clean it after the session is established.
 
-  const { data: { session } } = await _supabase.auth.getSession();
-  
-  if (session) {
-    setUserQuiet(session.user);
-    // If returning from OAuth, show welcome once
-    if (isOAuthRedirect) {
-      showWelcome(session.user.user_metadata?.full_name || session.user.email,
-                  session.user.user_metadata?.avatar_url || '');
-    }
-  }
-
+  // Listen for auth state changes FIRST before getSession
+  // This ensures we catch the SIGNED_IN event from PKCE code exchange
   _supabase.auth.onAuthStateChange((_event, session) => {
-    if (session && (_event === 'TOKEN_REFRESHED' || _event === 'SIGNED_IN')) {
+    if (_event === 'SIGNED_IN' && session) {
+      setUserQuiet(session.user);
+      if (isOAuthRedirect) {
+        // Clean URL now that session is established
+        if (window.history.replaceState) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        showWelcome(session.user.user_metadata?.full_name || session.user.email,
+                    session.user.user_metadata?.avatar_url || '');
+      }
+    } else if (_event === 'TOKEN_REFRESHED' && session) {
       setUserQuiet(session.user);
     } else if (_event === 'SIGNED_OUT') {
       clearUser();
     }
   });
+
+  // Now get session — on PKCE redirect this triggers the code exchange
+  // and fires SIGNED_IN via onAuthStateChange above
+  const { data: { session } } = await _supabase.auth.getSession();
+  
+  if (session && !isOAuthRedirect) {
+    // Existing session on normal page load — restore quietly
+    setUserQuiet(session.user);
+  }
 }
 
 // Silent restore — no welcome screen, just update UI
@@ -6243,14 +6252,9 @@ function closeModal(id){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-// Run auth first, then show home only if not an OAuth redirect
-(async () => {
-  const isOAuthRedirect = window.location.hash.includes('access_token') || 
-                          window.location.search.includes('code=');
-  if (!isOAuthRedirect) showHome();
-  await initAuth();
-  if (isOAuthRedirect) showHome(); // show home after auth processes (welcome will override)
-})();
+// Show home immediately, auth runs in background
+showHome();
+initAuth();
 checkShareParam();
 renderCommunityFeed();
 saveRoute(); // update badge
