@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Veil — UK Haunted Locations Directory | Ghost Hunting Guide</title>
-<meta name="description" content="The UK's most comprehensive haunted locations directory. 60+ verified ghost hunting sites including Edinburgh Castle, the Tower of London, and Chillingham Castle. Reviews, scare ratings, booking info and investigator tools.">
+<meta name="description" content="The UK's most comprehensive haunted locations directory. 111 verified ghost hunting sites including Edinburgh Castle, the Tower of London, and Chillingham Castle. Reviews, scare ratings, booking info and investigator tools.">
 <meta name="keywords" content="haunted locations UK, ghost hunting UK, haunted places Britain, paranormal investigation, ghost tours UK, most haunted UK, haunted castles, haunted prisons, haunted houses UK">
 <meta name="author" content="The Veil">
 <meta name="robots" content="index, follow">
@@ -14,7 +14,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://fanciful-croissant-91a3b1.netlify.app/">
 <meta property="og:title" content="The Veil — UK Haunted Locations Directory">
-<meta property="og:description" content="60+ verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
+<meta property="og:description" content="111 verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
 <meta property="og:image" content="https://fanciful-croissant-91a3b1.netlify.app/images/castles.png">
 <meta property="og:site_name" content="The Veil">
 <meta property="og:locale" content="en_GB">
@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://fanciful-croissant-91a3b1.netlify.app/">
 <meta name="twitter:title" content="The Veil — UK Haunted Locations Directory">
-<meta name="twitter:description" content="60+ verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
+<meta name="twitter:description" content="111 verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
 <meta name="twitter:image" content="https://fanciful-croissant-91a3b1.netlify.app/images/castles.png">
 
 <!-- Schema.org structured data -->
@@ -52,7 +52,7 @@
   "@type": "ItemList",
   "name": "UK Haunted Locations",
   "description": "A curated directory of verified haunted locations across the United Kingdom",
-  "numberOfItems": 60,
+  "numberOfItems": 111,
   "itemListElement": [
     {"@type":"ListItem","position":1,"name":"30 East Drive, Pontefract","url":"https://theveil.co.uk/#location-1"},
     {"@type":"ListItem","position":2,"name":"Edinburgh Castle","url":"https://theveil.co.uk/#location-2"},
@@ -1624,7 +1624,7 @@ footer a{color:var(--teal);text-decoration:none;}
 <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;" aria-hidden="true">
   <h1>UK Haunted Locations Directory — Ghost Hunting Guide</h1>
   <h2>Most Haunted Places in the UK</h2>
-  <p>The Veil is the UK's most comprehensive haunted locations directory. Browse 60+ verified ghost hunting sites across England, Scotland, Wales, Northern Ireland and Ireland. Each location includes historical background, paranormal phenomena, visitor testimonies, scare ratings, pricing and booking information.</p>
+  <p>The Veil is the UK's most comprehensive haunted locations directory. Browse 111 verified ghost hunting sites across England, Scotland, Wales, Northern Ireland and Ireland. Each location includes historical background, paranormal phenomena, visitor testimonies, scare ratings, pricing and booking information.</p>
   <h2>Ghost Hunting Equipment Guides</h2>
   <p>In-depth guides to EMF meters, EVP recorders, thermal cameras, spirit boxes, REM pods, laser grids, cat balls, dowsing rods and more — with price comparisons, reliability ratings, and expert investigator tips.</p>
   <h2>Featured Haunted Locations</h2>
@@ -3080,7 +3080,7 @@ footer a{color:var(--teal);text-decoration:none;}
 </div>
 
 <footer>
-  <p><strong>The Veil</strong> — UK Haunted Locations Directory · <a href="#">60 verified locations</a> · No fake reviews · Real sources only</p>
+  <p><strong>The Veil</strong> — UK Haunted Locations Directory · <a href="#">111 verified locations</a> · No fake reviews · Real sources only</p>
   <p style="margin-top:6px;font-size:12px;opacity:0.5;">For research and entertainment purposes. Always respect private property. Some locations require waivers.</p>
 </footer>
 
@@ -3094,13 +3094,31 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 
 async function initAuth() {
+  const isOAuthRedirect = window.location.hash.includes('access_token') || 
+                          window.location.search.includes('code=');
+
+  // Clean the URL immediately if it's an OAuth redirect
+  if (isOAuthRedirect && window.history.replaceState) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
   const { data: { session } } = await _supabase.auth.getSession();
-  if (session) setUserQuiet(session.user); // restore session silently
+  
+  if (session) {
+    setUserQuiet(session.user);
+    // If returning from OAuth, show welcome once
+    if (isOAuthRedirect) {
+      showWelcome(session.user.user_metadata?.full_name || session.user.email,
+                  session.user.user_metadata?.avatar_url || '');
+    }
+  }
 
   _supabase.auth.onAuthStateChange((_event, session) => {
-    if (_event === 'SIGNED_IN') { setUser(session.user); } // fresh login — show welcome
-    else if (_event === 'TOKEN_REFRESHED' && session) { setUserQuiet(session.user); } // silent refresh
-    else if (!session) { clearUser(); }
+    if (session && (_event === 'TOKEN_REFRESHED' || _event === 'SIGNED_IN')) {
+      setUserQuiet(session.user);
+    } else if (_event === 'SIGNED_OUT') {
+      clearUser();
+    }
   });
 }
 
@@ -3160,7 +3178,7 @@ function clearUser() {
 async function signInWithGoogle() {
   await _supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: window.location.origin + window.location.pathname }
   });
 }
 
@@ -4644,6 +4662,170 @@ const LOCATIONS = [
     summary:"Carew Castle's dual haunting is distinctive — the mournful Princess Nest apparition is one of Wales's most historically significant ghost stories, while the Barbary ape ghost is one of the most unusual animal hauntings documented in any UK location. The combination makes Carew a compelling and quirky destination for paranormal investigators.",
     testimonies:[]
   },
+  {
+    id:101, name:"Woodchester Mansion", city:"Nympsfield", region:"England — South", type:"House", scare:5,
+    rating:4.7, reviews:200, featured:true,
+    price:"£45–£55pp", priceNote:"Ghost hunts from £45pp via Haunted Happenings, Most Haunted Experience and others",
+    bookingUrl:"https://www.woodchestermansion.org.uk/hiring-the-mansion/paranormal-events-at-the-mansion/",
+    mapsUrl:"https://maps.google.com/?q=Woodchester+Mansion+Nympsfield+Gloucestershire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Woodchester_Mansion_-_geograph.org.uk_-_1266373.jpg/1280px-Woodchester_Mansion_-_geograph.org.uk_-_1266373.jpg",
+    desc:"An unfinished Victorian Gothic mansion abandoned mid-construction in 1868 — workers downed tools and never returned. During WWII, Canadian and American soldiers drowned in a nearby lake during training exercises; their bodies were brought to the mansion and kept in a room now known as 'The Morgue.' Visited twice by Most Haunted Live (2003, 2005). One of the most actively haunted properties in the UK.",
+    tags:["Poltergeist","Apparitions","Dark mass","Cold spots","EVP","Rock throwing","WWII soldiers"],
+    lat:51.7123, lng:-2.2689,
+    source:"Haunted Happenings, Higgypop Paranormal (Steve Higgins), spiritshack.co.uk, woodchestermansion.org.uk, Richard Estep — These Haunted Hallways (Llewellyn 2018)",
+    summary:"Woodchester is notorious for its poltergeist activity — visitors have been pelted by rocks thrown from empty rooms, grabbed by invisible hands, and encountered a towering dark mass in the corridors that has caused multiple investigators to flee. The cellar is considered the most active area, where disembodied breathing has been recorded on audio equipment. A lady in a dress has been seen staring from a first-floor window — a window with no floor beneath it. Paranormal author Richard Estep recorded a disembodied breath in the cellar during an investigation with Haunted Happenings, published in 'These Haunted Hallways' (2018). Steve Higgins of Higgypop reported encountering a human-sized grey mass in a corridor during a Most Haunted Experience event — an account he describes as the closest he has come to witnessing a ghost in almost two decades of investigation.",
+    testimonies:[
+      {author:"Steve Higgins, Higgypop Paranormal", source:"higgypop.com", stars:5, text:"Without warning, a human-sized, grey mass appeared in a corridor in front of me. The figure was devoid of discernible features. It was definitely the closest I've been to seeing what could be called a ghost."},
+      {author:"Haunted Houses Events guest", source:"haunted-houses.co.uk", stars:5, text:"We had a great time with the team at Woodchester mansion. It remained steadily active all evening into early hours! In our last hour we were so frightened we couldn't move!"},
+      {author:"TripAdvisor reviewer (Haunted Happenings event)", source:"TripAdvisor", stars:4, text:"It is very creepy and beautiful at the same time with so much history. We had a great time and it was so nice to see it in the night time."},
+    ]
+  },
+  {
+    id:102, name:"Pluckley Village & Screaming Woods", city:"Pluckley", region:"England — South", type:"Woodland", scare:4,
+    rating:4.2, reviews:150, featured:false,
+    price:"Free", priceNote:"Village is freely accessible. Ghost walk tours available from £10pp",
+    bookingUrl:"https://www.visitsoutheastengland.com/things-to-do/pluckley-haunted-village",
+    mapsUrl:"https://maps.google.com/?q=Pluckley+Village+Kent",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Pluckley_-_geograph.org.uk_-_1084281.jpg/1280px-Pluckley_-_geograph.org.uk_-_1084281.jpg",
+    desc:"England's most haunted village — named so by the Guinness Book of World Records in 1989 with between 12 and 16 documented ghosts. The adjacent Dering Woods, known locally as the Screaming Woods, are famous for unexplained screams heard at night. In November 1997 a resident reported her car filling with the sound of horse hooves on cobbles whilst driving home. Featured on Top Gear (BBC), Celebrity Haunted Hotel Live, and multiple paranormal series.",
+    tags:["Screaming Woods","Red Lady","White Lady","Highwayman","Ghost coach","Most haunted village","Kent"],
+    lat:51.1667, lng:0.7167,
+    source:"Guinness Book of World Records 1989, Wikipedia, UWE Bristol research (Dr Simon Moreton), Kent Tea & Coffee Company, Ancient Origins",
+    summary:"Pluckley's 12–16 documented ghosts include the Red Lady (seen in St Nicholas churchyard), the White Lady (seen in the church), a ghostly highwayman killed at Fright Corner, a phantom coach and horses reported over 20 years, the Screaming Man of the old clay pit, and the Watercress Woman — confirmed by UWE Bristol research as Sarah Sharp, who burned to death in 1911. Academic research by Dr Simon Moreton (UWE Bristol) traced 10 of the ghost stories to local historian Frederick Sanders, who first called Pluckley 'the most haunted village in England' in the Kentish Express in 1950. At least four of the 16 ghosts trace to documented historical deaths. During October, police presence is increased due to the volume of paranormal tourists.",
+    testimonies:[]
+  },
+  {
+    id:103, name:"Highgate Cemetery", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:4.5, reviews:500, featured:false,
+    price:"£15pp", priceNote:"East Cemetery self-guided £15pp · West Cemetery guided tour only £15pp · Twilight tours available",
+    bookingUrl:"https://highgatecemetery.org/visit",
+    mapsUrl:"https://maps.google.com/?q=Highgate+Cemetery+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Highgate_West_Cemetery.jpg/1280px-Highgate_West_Cemetery.jpg",
+    desc:"London's most atmospheric Victorian cemetery, home of 170,000 souls across 53,000 graves, including Karl Marx, Douglas Adams and George Michael. Achieved international notoriety in the 1970s during the Highgate Vampire affair — when vampire hunters, media hysteria and rival occultists clashed in its overgrown paths. Reports of a tall dark figure with glowing red eyes, a phantom cyclist, a spectral nun, a woman in white searching for her murdered children, and an elderly woman darting between tombstones.",
+    tags:["Highgate Vampire","Apparitions","Phantom cyclist","Victorian cemetery","London","Occult"],
+    lat:51.5673, lng:-0.1473,
+    source:"Wikipedia — Highgate Vampire, Hampstead & Highgate Express (1970), Bill Ellis — Folklore journal 1993, Authentic Vacations, Dark Frights",
+    summary:"The Highgate Vampire affair began in early 1970 when David Farrant wrote to the Hampstead and Highgate Express reporting a grey figure seen on Christmas Eve 1969. Multiple readers responded with accounts of a tall man in a hat, a spectral cyclist, a woman in white, a face glaring through the gates, and a pale gliding form. Rival vampire hunters Sean Manchester and David Farrant conducted public hunts; on Friday 13th March 1970, hundreds of would-be vampire hunters invaded the cemetery. The Hammer Horror film Dracula AD 1972 was reportedly inspired by the case. Reported phenomena include sudden temperature drops, watches stopping, dead foxes with unexplained throat wounds, and the persistent figure of a crazed elderly woman with long grey hair seen darting between graves — said to be searching for children she murdered in life.",
+    testimonies:[]
+  },
+  {
+    id:104, name:"Mary King's Close", city:"Edinburgh", region:"Scotland", type:"Other", scare:3,
+    rating:4.6, reviews:12000, featured:true,
+    price:"£19.95pp", priceNote:"Adult tickets from £19.95pp · Booking essential — often sells out",
+    bookingUrl:"https://www.realmarykingsclose.com/",
+    mapsUrl:"https://maps.google.com/?q=Mary+King%27s+Close+Edinburgh",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Mary_King%27s_Close%2C_Edinburgh_2009.jpg/1280px-Mary_King%27s_Close%2C_Edinburgh_2009.jpg",
+    desc:"A labyrinth of 17th-century underground streets sealed beneath Edinburgh's Royal Mile, where plague ravaged the population in 1645. Mary Queen of Scots spent her last night in Edinburgh here in 1567. The most famous ghost is Annie — a little girl who died of plague and whose spirit was encountered in 1992 by Japanese psychic Aiko Gibo, who felt a tug on her leg and saw the child crying in a corner. Visitors now leave toys in Annie's room from all over the world. Featured on Most Haunted (2004) and Ghost Hunters International.",
+    tags:["Annie","Plague","Ghost girl","Underground","Edinburgh","Most Haunted","EVP"],
+    lat:55.9494, lng:-3.1911,
+    source:"Wikipedia, Edinburgh Evening News (Scotsman), SpookyIsles.com (Ryan O'Neill, Scottish Paranormal), retrospectjournal.com, therealmarykingsclose.com",
+    summary:"Ryan O'Neill of Scottish Paranormal, who had extensive access to Mary King's Close between 2005 and 2015, documented stones being thrown, unexplained footsteps, voice recordings, alarm activations, and physical activity in Mr Chesney's house at the bottom of the close. The Japanese psychic Aiko Gibo's 1992 encounter with Annie — including feeling a tug on her leg and seeing the ghost of a little girl crying — is one of the most detailed first-person paranormal accounts associated with any Scottish location. Since Gibo left a tartan Barbie doll for Annie, visitors have brought gifts from across the world, many of which remain on display. A possible infrared image of Mary King herself was captured by ghost hunters in the close after hours.",
+    testimonies:[]
+  },
+  {
+    id:105, name:"Drakelow Tunnels", city:"Kidderminster", region:"England — Midlands", type:"Other", scare:4,
+    rating:4.5, reviews:180, featured:false,
+    price:"£45pp", priceNote:"Ghost hunt events from ~£45pp via Haunted Happenings, Paranormal Eye UK and others",
+    bookingUrl:"https://www.drakelow-tunnels.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Drakelow+Tunnels+Kidderminster",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Drakelow_Power_Station_-_geograph.org.uk_-_1059461.jpg/1280px-Drakelow_Power_Station_-_geograph.org.uk_-_1059461.jpg",
+    desc:"3.5 miles of underground tunnels in Worcestershire, originally a WWII aircraft shadow factory for Rover, later converted into a Cold War nuclear bunker. At least three men were killed in a roof collapse during construction in the 1940s; further workers died underground in accidents. Most Haunted filmed here over 48 hours in 2014 — the crew emerged extremely distressed. Paranormal Lockdown visited in 2019. Total darkness, no phone signal, no natural light: among the most disorientating investigation venues in Britain.",
+    tags:["WWII","Nuclear bunker","Cold War","Underground","Most Haunted","EVP","Oswald","Midlands"],
+    lat:52.4167, lng:-2.2167,
+    source:"Higgypop Paranormal (Steve Higgins ghost hunt review), drakelow-tunnels.co.uk, spiritshack.co.uk, Paranormal Eye UK, TripAdvisor",
+    summary:"The tunnels' most famous entity is Oswald — a mischievous ghost who pulls hair, moves objects, and touches people throughout the network. A demonic spirit has been reported by investigators in the old canteen area, linked to satanic rituals believed to have taken place in the tunnels. A former caretaker's dogs would bark at a corner of one specific room without explanation. Wartime music has been heard over the tunnel's speaker system — which has been without electricity for decades. Steve Higgins of Higgypop described the tunnels as 'the perfect place for paranormal investigations' after a Haunted Happenings event, noting the complete absence of external stimuli and confirming reports of disembodied voices and something pushing past guests in the dark passages.",
+    testimonies:[
+      {author:"Steve Higgins, Higgypop Paranormal", source:"higgypop.com", stars:4, text:"The tunnels' distance below ground and lack of windows means it is void of all external stimuli. Once the iron blast door slammed shut behind us we were in complete darkness and cut off from the outside world."},
+      {author:"TripAdvisor reviewer (Haunted Happenings)", source:"TripAdvisor", stars:4, text:"Although difficult to find and very unassuming on the outside, inside is chaotic and creepy. I would recommend this for a really interesting paranormal experience."},
+    ]
+  },
+  {
+    id:106, name:"Samlesbury Hall", city:"Preston", region:"England — North", type:"House", scare:3,
+    rating:4.4, reviews:300, featured:false,
+    price:"Free–£60pp", priceNote:"Free daytime entry · Ghost hunt events from ~£60pp via Samlesbury Hall Ghost Project",
+    bookingUrl:"https://samlesburyhall.co.uk/ghost-hunting/",
+    mapsUrl:"https://maps.google.com/?q=Samlesbury+Hall+Preston+Lancashire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Samlesbury_Hall_-_geograph.org.uk_-_1508754.jpg/1280px-Samlesbury_Hall_-_geograph.org.uk_-_1508754.jpg",
+    desc:"A Grade I listed medieval manor built in 1325, reputedly one of the most haunted houses in Britain with 13 documented ghosts. The most famous is the White Lady — Dorothy Southworth — who fell in love with a Protestant man from the de Hoghton family, was forbidden to marry him, and died of grief. Her apparition has been seen in the hall and grounds since Elizabethan times. Investigated twice by Most Haunted, once by Ghost Hunters International. The first published account of hauntings dates to 1873.",
+    tags:["White Lady","Dorothy Southworth","13 ghosts","Medieval","Most Haunted","Lancashire","Free entry"],
+    lat:53.7806, lng:-2.6278,
+    source:"samlesburyhall.co.uk, hauntedrooms.co.uk, Paranormal Eye UK",
+    summary:"Samlesbury Hall runs its own ongoing paranormal research project — The Samlesbury Hall Ghost Project — which records witness testimonies and investigation data. In the Great Hall, a specific spot is associated with a slap to the back of the head, sudden uncomfortable feelings, and passing shadows. Wedding guests have reported distressing feelings in the same location. The 13 resident spirits include Dorothy Southworth (White Lady), a medieval knight, a phantom monk, a cavalier, children, and several unidentified figures. Samlesbury Hall no longer allows external ghost hunting companies to operate on site — all events are run by the Hall's own team using Victorian-era investigative methods.",
+    testimonies:[
+      {author:"Samlesbury Hall visitor", source:"samlesburyhall.co.uk", stars:5, text:"Just had a fantastic visit to Samlesbury Hall with the family and was regaled with numerous ghost stories by the very knowledgeable Ian. Looking forward to doing some more research into the history of the place and will surely be back soon!"},
+    ]
+  },
+  {
+    id:107, name:"The Langham Hotel", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:4.8, reviews:3000, featured:false,
+    price:"£400pp+", priceNote:"5-star hotel — rooms from £400/night · No dedicated ghost events",
+    bookingUrl:"https://www.langhamhotels.com/en/the-langham/london/",
+    mapsUrl:"https://maps.google.com/?q=The+Langham+Hotel+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/The_Langham%2C_London.jpg/1280px-The_Langham%2C_London.jpg",
+    desc:"One of London's grandest hotels and one of its most haunted, operating since 1865. The most active ghost is a German prince who committed suicide by jumping from the fourth floor — his apparition walks through walls and doorways in the early hours, with a particular attachment to room 333. A Victorian doctor who murdered his wife and himself has been seen in the corridors. England cricketers Ben Stokes and Stuart Broad reported disturbing experiences here. Oscar Wilde, Princess Diana, and Arthur Conan Doyle have all stayed here.",
+    tags:["German prince","Room 333","Victorian doctor","5-star haunted","London","England cricket","Conan Doyle"],
+    lat:51.5181, lng:-0.1459,
+    source:"hauntedrooms.co.uk, Daily Mail (2014 — Ben Stokes & Stuart Broad account)",
+    summary:"Room 333 at the Langham is considered London's most haunted hotel room. The German prince apparition — who died by suicide on the fourth floor — is seen walking through solid walls and doorways, most frequently in the early hours. In 2014, England cricketers Ben Stokes and Stuart Broad reported being unable to sleep due to strange noises and an overwhelming sense of presence in their rooms, which they attributed to the hotel's ghost. A murdered doctor's apparition and a ghostly butler have also been reported in the corridors. Former guests include Princess Diana, Lady Gaga, Oscar Wilde, and Arthur Conan Doyle — who was a member of the Ghost Club.",
+    testimonies:[]
+  },
+  {
+    id:108, name:"Ettington Park Hotel", city:"Stratford-upon-Avon", region:"England — Midlands", type:"House", scare:4,
+    rating:4.4, reviews:800, featured:false,
+    price:"£150pp+", priceNote:"4-star hotel — rooms from £150/night · Featured in 1963 film The Haunting",
+    bookingUrl:"https://www.handpickedhotels.co.uk/ettingtonpark",
+    mapsUrl:"https://maps.google.com/?q=Ettington+Park+Hotel+Stratford+upon+Avon",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Ettington_Park_hotel.jpg/1280px-Ettington_Park_hotel.jpg",
+    desc:"A Gothic Victorian mansion near Stratford-upon-Avon, holder of the title 'Most Haunted Hotel in Britain.' Featured as the location in the 1963 horror film The Haunting. Sightings include an old woman in Victorian clothing, a man walking a dog who vanishes, several monks, army officers, and the most famous resident — Lady Emma, the Lady in White. The hotel was formerly a nursing home, a club, and a prisoner of war camp, which may explain the diversity of reported spirits.",
+    tags:["Lady in White","The Haunting 1963","Most Haunted Hotel","Lady Emma","Victorian","Warwickshire"],
+    lat:52.1167, lng:-1.6167,
+    source:"hauntedrooms.co.uk, handpickedhotels.co.uk",
+    summary:"Ettington Park is considered by many paranormal authorities to be the most haunted hotel in Britain. The Lady in White — Lady Emma — is the most consistently reported apparition, seen in multiple locations throughout the building. Paranormal investigators have captured EVP recordings in the former nursing home sections. The hotel's use as a POW camp during WWII, a nursing home, and a gentleman's club across different eras has resulted in an unusually diverse range of reported spirits including monks, soldiers, and aristocratic figures. The 1963 film The Haunting was shot here, adding a further layer of gothic horror history to the building.",
+    testimonies:[]
+  },
+  {
+    id:109, name:"Charlton House", city:"Greenwich", region:"England — London", type:"House", scare:3,
+    rating:4.0, reviews:80, featured:false,
+    price:"Free", priceNote:"Community centre — public access during events and open days",
+    bookingUrl:"https://www.royalgreenwich.gov.uk/info/200204/parks_and_open_spaces/1069/charlton_house",
+    mapsUrl:"https://maps.google.com/?q=Charlton+House+Greenwich+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Charlton_House%2C_London_Borough_of_Greenwich_-_geograph.org.uk_-_1523602.jpg/1280px-Charlton_House%2C_London_Borough_of_Greenwich_-_geograph.org.uk_-_1523602.jpg",
+    desc:"One of the finest surviving Jacobean mansions in England, built in 1607. Haunted by Sir William Langhorne — who died in 1714 without an heir after a life spent desperately seeking one — and a Grey Lady carrying a baby in blankets. Sir William is frequently seen throughout the mansion, reportedly reluctant to accept he died childless. The Grey Lady apparition is reported as unusually vivid — described as appearing as solid as a living person.",
+    tags:["Sir William Langhorne","Grey Lady","Jacobean","Greenwich","London","Full apparition"],
+    lat:51.4783, lng:0.0397,
+    source:"hauntedrooms.co.uk",
+    summary:"Sir William Langhorne's ghost is one of London's most persistently reported hauntings — he is seen throughout the mansion in multiple locations, apparently continuing to search for the heir he never had in life. The Grey Lady apparition is notable for its solidity — multiple witnesses have described seeing her as a full-bodied apparition, as clear as a living person, before she vanishes. She is always seen carrying what appears to be an infant wrapped in blankets.",
+    testimonies:[]
+  },
+  {
+    id:110, name:"Borthwick Castle", city:"Gorebridge", region:"Scotland", type:"Castle", scare:3,
+    rating:4.5, reviews:400, featured:false,
+    price:"£200pp+", priceNote:"Luxury hotel — rooms from £200/night · No dedicated ghost events",
+    bookingUrl:"https://www.borthwickcastle.com/",
+    mapsUrl:"https://maps.google.com/?q=Borthwick+Castle+Gorebridge+Edinburgh",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Borthwick_Castle.jpg/1280px-Borthwick_Castle.jpg",
+    desc:"A 15th-century castle 12 miles from Edinburgh where Mary Queen of Scots took refuge in 1567. Home to five reported ghosts, most notably a servant girl who became pregnant by the Lord of the castle, was stabbed through the womb with a sword, and died in what is now the infamous Red Room. The chancellor who was burned to death for embezzlement also haunts the Red Room. Both apparitions have been seen descending the spiral staircase and walking in the Great Hall. Guests report feeling constantly watched and sudden extreme nausea.",
+    tags:["Mary Queen of Scots","Red Room","Servant girl","Medieval","Edinburgh","Extreme nausea","Five ghosts"],
+    lat:55.8342, lng:-3.0439,
+    source:"hauntedrooms.co.uk",
+    summary:"The Red Room at Borthwick Castle is the focal point of the most disturbing accounts — the servant girl apparition, associated with a violent death in the room itself, is reported alongside the chancellor's ghost. Guests staying in the castle have reported feeling under constant surveillance from unseen presences, and several have experienced sudden and extreme nausea without physical cause — particularly in the Red Room and on the spiral staircases. Mary Queen of Scots' presence is also felt throughout the castle, which she used as a refuge after the Battle of Carberry Hill.",
+    testimonies:[]
+  },
+  {
+    id:111, name:"Craig y Nos Castle", city:"Penycae", region:"Wales", type:"Castle", scare:3,
+    rating:4.3, reviews:250, featured:false,
+    price:"£60pp+", priceNote:"Hotel and wedding venue — ghost hunts from ~£60pp · Rooms from £80/night",
+    bookingUrl:"https://www.craigynoscastle.com/",
+    mapsUrl:"https://maps.google.com/?q=Craig+y+Nos+Castle+Brecon+Beacons",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Craig_y_Nos_Castle.jpg/1280px-Craig_y_Nos_Castle.jpg",
+    desc:"A Victorian castle in the Brecon Beacons, former home of opera singer Adelina Patti and later a sanatorium for tuberculosis patients for over 50 years. The combination of a grand Victorian diva's residence and a TB hospital — where hundreds of patients died — makes this one of Wales's most atmospherically haunted locations. The ghost of Adelina Patti herself is said to still roam the theatre she had built within the castle. Ghost tours have operated here for over a decade.",
+    tags:["Adelina Patti","TB sanatorium","Brecon Beacons","Wales","Opera house","Victorian","Tuberculosis"],
+    lat:51.8333, lng:-3.6167,
+    source:"visitbritain.com, craigynoscastle.com",
+    summary:"Craig y Nos combines two distinct haunting sources: the theatrical Victorian era of Adelina Patti, who built a private theatre in the castle and performed there for European royalty, and the subsequent decades as a tuberculosis sanatorium where patients — many of them children — died in large numbers. Staff and guests have reported apparitions in the old ward corridors, unexplained sounds in the theatre, and strong presences in the former patient areas. The castle has been running ghost hunt events for over a decade, making it one of Wales's most established paranormal venues.",
+    testimonies:[]
+  },
+];
 ];
 
 
@@ -5873,8 +6055,14 @@ function closeModal(id){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-showHome();
-initAuth();
+// Run auth first, then show home only if not an OAuth redirect
+(async () => {
+  const isOAuthRedirect = window.location.hash.includes('access_token') || 
+                          window.location.search.includes('code=');
+  if (!isOAuthRedirect) showHome();
+  await initAuth();
+  if (isOAuthRedirect) showHome(); // show home after auth processes (welcome will override)
+})();
 checkShareParam();
 renderCommunityFeed();
 saveRoute(); // update badge
