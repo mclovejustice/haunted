@@ -8,23 +8,23 @@
 <meta name="keywords" content="haunted locations UK, ghost hunting UK, haunted places Britain, paranormal investigation, ghost tours UK, most haunted UK, haunted castles, haunted prisons, haunted houses UK">
 <meta name="author" content="The Veil">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://theveil.co.uk/">
+<link rel="canonical" href="https://fanciful-croissant-91a3b1.netlify.app/">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://theveil.co.uk/">
+<meta property="og:url" content="https://fanciful-croissant-91a3b1.netlify.app/">
 <meta property="og:title" content="The Veil — UK Haunted Locations Directory">
 <meta property="og:description" content="60+ verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
-<meta property="og:image" content="https://theveil.co.uk/og-image.jpg">
+<meta property="og:image" content="https://fanciful-croissant-91a3b1.netlify.app/images/castles.png">
 <meta property="og:site_name" content="The Veil">
 <meta property="og:locale" content="en_GB">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://theveil.co.uk/">
+<meta name="twitter:url" content="https://fanciful-croissant-91a3b1.netlify.app/">
 <meta name="twitter:title" content="The Veil — UK Haunted Locations Directory">
 <meta name="twitter:description" content="60+ verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
-<meta name="twitter:image" content="https://theveil.co.uk/og-image.jpg">
+<meta name="twitter:image" content="https://fanciful-croissant-91a3b1.netlify.app/images/castles.png">
 
 <!-- Schema.org structured data -->
 <script type="application/ld+json">
@@ -203,6 +203,24 @@
 .badge-best{background:var(--teal);color:var(--white);}
 .badge-budget{background:#e8f5e9;color:#2e7d32;}
 .badge-avoid{background:#fbe9e7;color:#bf360c;}
+
+
+/* ── WELCOME OVERLAY ── */
+.welcome-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s;
+}
+.welcome-overlay.show{opacity:1;pointer-events:all;}
+.welcome-overlay.fade-out{opacity:0;}
+.welcome-avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--teal);object-fit:cover;}
+.welcome-name{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--white);}
+.welcome-sub{font-size:15px;color:rgba(255,255,255,0.55);}
+.welcome-icon{font-size:48px;animation:float 1.5s ease-in-out infinite alternate;}
+@keyframes float{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 
 /* ── RESET & BASE ── */
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -1380,8 +1398,8 @@ footer a{color:var(--teal);text-decoration:none;}
 
   /* Category cards */
   .cat-grid{grid-template-columns:1fr 1fr;}
-  .cat-card:first-child{grid-column:span 2;}
-  .cat-card{height:140px;}
+  .cat-card:first-child{grid-column:span 2;aspect-ratio:16/9;}
+  .cat-card{aspect-ratio:4/3;height:auto;}
 
   /* Near me */
   .near-me-inner{grid-template-columns:1fr;gap:1.5rem;padding:0 1rem;}
@@ -1436,8 +1454,8 @@ footer a{color:var(--teal);text-decoration:none;}
 
 @media(max-width:480px){
   .cat-grid{grid-template-columns:1fr;}
-  .cat-card:first-child{grid-column:span 1;}
-  .cat-card{height:120px;}
+  .cat-card:first-child{grid-column:span 1;aspect-ratio:4/3;}
+  .cat-card{aspect-ratio:4/3;height:auto;}
   .hero-title{font-size:26px;}
   .section-title{font-size:18px;}
   .near-me-title{font-size:22px;}
@@ -1448,10 +1466,179 @@ footer a{color:var(--teal);text-decoration:none;}
   .route-btn{width:100%;text-align:center;}
 }
 </style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the most haunted place in the UK?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "30 East Drive in Pontefract is widely considered the most violently haunted location in the UK, home to the Black Monk of Pontefract poltergeist. Edinburgh Castle, Chillingham Castle, and The Ancient Ram Inn are also consistently rated among Britain's most haunted locations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What equipment do ghost hunters use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ghost hunters typically use EMF meters to detect electromagnetic anomalies, EVP recorders to capture unexplained audio, thermal cameras to detect cold spots, spirit boxes for communication attempts, REM pods, laser grids, full spectrum cameras, and trigger objects. The most essential tools are an EMF meter and a digital voice recorder."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you stay overnight at haunted locations in the UK?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — many UK haunted locations offer overnight ghost hunting events. Popular options include 30 East Drive in Pontefract (private hire from £350), Chillingham Castle, Bodmin Jail, Shepton Mallet Prison, and various haunted hotels and inns across England, Scotland and Wales."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is an EMF meter and why do ghost hunters use it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An EMF (Electromagnetic Field) meter measures the strength of electromagnetic fields. Ghost hunters use them because the theory suggests spirits may generate or disrupt electromagnetic fields. Unexplained spikes in EMF readings in areas with no electrical sources are recorded as potential paranormal evidence. The K-II and Mel-8704R are the most popular models."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ghost hunting legal in the UK?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ghost hunting is legal in the UK when conducted at venues with proper permission. Many locations specifically welcome paranormal investigators. Trespassing on private property is illegal regardless of purpose, so always book through official channels or obtain written permission from landowners before investigating."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a spirit box?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A spirit box (also called a ghost box or Frank's Box) is a modified radio receiver that rapidly sweeps AM and FM frequencies, generating white noise and audio fragments. Paranormal investigators believe spirits can manipulate this audio stream to produce intelligible words. The SB7 Spirit Box is the most widely used model. Their reliability is debated — sceptics attribute results to auditory pareidolia."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the most haunted castles in Scotland?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Scotland's most haunted castles include Edinburgh Castle (headless drummer and phantom piper), Glamis Castle (the Monster of Glamis and Grey Lady), Chillingham Castle in Northumberland (the Blue Boy and White Pantry Ghost), Airth Castle Hotel, and Ballygally Castle in Northern Ireland."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does a ghost hunting night cost in the UK?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ghost hunting events in the UK typically cost between £30 and £100 per person for organised group events. Private venue hire ranges from £150 to £500+ per night depending on location. Some locations like Bodmin Jail and Shepton Mallet Prison offer events from around £45pp. The most exclusive locations like 30 East Drive cost up to £350 for private hire."
+      }
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "name": "Edinburgh Castle",
+    "description": "One of Scotland's most haunted fortresses with paranormal reports spanning centuries including a headless drummer boy and phantom piper.",
+    "url": "https://fanciful-croissant-91a3b1.netlify.app/#location-2",
+    "address": {"@type": "PostalAddress", "addressLocality": "Edinburgh", "addressCountry": "GB"},
+    "geo": {"@type": "GeoCoordinates", "latitude": 55.9486, "longitude": -3.1999},
+    "touristType": "Paranormal investigator, Ghost hunting enthusiast"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "name": "30 East Drive",
+    "description": "Home of the Black Monk of Pontefract — Europe's most violent poltergeist. Available for private ghost hunting hire.",
+    "url": "https://fanciful-croissant-91a3b1.netlify.app/#location-1",
+    "address": {"@type": "PostalAddress", "addressLocality": "Pontefract", "addressCountry": "GB"},
+    "geo": {"@type": "GeoCoordinates", "latitude": 53.6925, "longitude": -1.3093},
+    "touristType": "Paranormal investigator, Ghost hunting enthusiast"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "name": "The Tower of London",
+    "description": "One of England's most haunted royal palaces with centuries of paranormal reports including Anne Boleyn and the Princes in the Tower.",
+    "url": "https://fanciful-croissant-91a3b1.netlify.app/#location-5",
+    "address": {"@type": "PostalAddress", "addressLocality": "London", "addressCountry": "GB"},
+    "geo": {"@type": "GeoCoordinates", "latitude": 51.5081, "longitude": -0.0759},
+    "touristType": "Paranormal investigator, Ghost hunting enthusiast"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "name": "Chillingham Castle",
+    "description": "One of England's most haunted castles, home to the Blue Boy ghost and open for overnight ghost hunting events.",
+    "url": "https://fanciful-croissant-91a3b1.netlify.app/#location-4",
+    "address": {"@type": "PostalAddress", "addressLocality": "Chillingham", "addressCountry": "GB"},
+    "geo": {"@type": "GeoCoordinates", "latitude": 55.5167, "longitude": -1.9167},
+    "touristType": "Paranormal investigator, Ghost hunting enthusiast"
+  }
+]
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "The Veil",
+  "url": "https://fanciful-croissant-91a3b1.netlify.app/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://fanciful-croissant-91a3b1.netlify.app/?search={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "The Veil",
+  "url": "https://fanciful-croissant-91a3b1.netlify.app/",
+  "description": "The UK's most comprehensive haunted locations directory and ghost hunting guide.",
+  "sameAs": []
+}
+</script>
+<link rel="preload" href="images/castles.png" as="image">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,700;1,8..60,300;1,8..60,400&family=Inter:wght@400;500;600;700&display=swap" as="style">
+<link rel="dns-prefetch" href="https://mthpnyjztheaoqfgkdiq.supabase.co">
+<link rel="dns-prefetch" href="https://upload.wikimedia.org">
 </head>
 <body>
 
 <!-- TOP UTILITY BAR -->
+
+<!-- Static SEO content for crawlers -->
+<div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;" aria-hidden="true">
+  <h1>UK Haunted Locations Directory — Ghost Hunting Guide</h1>
+  <h2>Most Haunted Places in the UK</h2>
+  <p>The Veil is the UK's most comprehensive haunted locations directory. Browse 60+ verified ghost hunting sites across England, Scotland, Wales, Northern Ireland and Ireland. Each location includes historical background, paranormal phenomena, visitor testimonies, scare ratings, pricing and booking information.</p>
+  <h2>Ghost Hunting Equipment Guides</h2>
+  <p>In-depth guides to EMF meters, EVP recorders, thermal cameras, spirit boxes, REM pods, laser grids, cat balls, dowsing rods and more — with price comparisons, reliability ratings, and expert investigator tips.</p>
+  <h2>Featured Haunted Locations</h2>
+  <ul>
+    <li>Edinburgh Castle — Scotland's most haunted fortress with reports of a headless drummer and phantom piper</li>
+    <li>30 East Drive Pontefract — home of the Black Monk, Europe's most violent poltergeist</li>
+    <li>The Tower of London — centuries of hauntings including Anne Boleyn and the Princes in the Tower</li>
+    <li>Chillingham Castle — one of England's most haunted castles with the ghost of the Blue Boy</li>
+    <li>The Ancient Ram Inn — Wotton-under-Edge's most terrifying haunted house</li>
+    <li>Bodmin Jail — Cornwall's most haunted prison open for ghost hunting events</li>
+    <li>Hampton Court Palace — haunted by Catherine Howard and Jane Seymour</li>
+    <li>Glamis Castle — Scotland's most haunted royal castle</li>
+  </ul>
+</div>
 <div class="topbar">
   <div class="topbar-inner">
     <a href="#" onclick="openSubmit();return false;">✦ Submit a haunted location</a>
@@ -2908,12 +3095,26 @@ let currentUser = null;
 
 async function initAuth() {
   const { data: { session } } = await _supabase.auth.getSession();
-  if (session) setUser(session.user);
+  if (session) setUserQuiet(session.user); // restore session silently
 
   _supabase.auth.onAuthStateChange((_event, session) => {
-    if (session) { setUser(session.user); }
-    else { clearUser(); }
+    if (_event === 'SIGNED_IN') { setUser(session.user); } // fresh login — show welcome
+    else if (_event === 'TOKEN_REFRESHED' && session) { setUserQuiet(session.user); } // silent refresh
+    else if (!session) { clearUser(); }
   });
+}
+
+// Silent restore — no welcome screen, just update UI
+function setUserQuiet(user) {
+  currentUser = user;
+  const name = user.user_metadata?.full_name || user.email;
+  const avatar = user.user_metadata?.avatar_url || '';
+  const navBtn = document.getElementById('navLoginBtn');
+  if (navBtn) { navBtn.textContent = name.split(' ')[0]; navBtn.onclick = switchToInvestigator; }
+  const nameEl = document.getElementById('journalUserName');
+  const avatarEl = document.getElementById('journalAvatar');
+  if (nameEl) nameEl.textContent = name;
+  if (avatarEl) avatarEl.src = avatar;
 }
 
 function setUser(user) {
@@ -2928,11 +3129,26 @@ function setUser(user) {
   const avatarEl = document.getElementById('journalAvatar');
   if (nameEl) nameEl.textContent = name;
   if (avatarEl) avatarEl.src = avatar;
-  // If journal is open, show content
-  if (document.getElementById('investigatorPanel') &&
-      document.getElementById('investigatorPanel').style.display !== 'none') {
-    showJournalContent();
-  }
+  // Show welcome flash then go to journal
+  showWelcome(name, avatar);
+}
+
+function showWelcome(name, avatar) {
+  const overlay = document.getElementById('welcomeOverlay');
+  const wName = document.getElementById('welcomeName');
+  const wAvatar = document.getElementById('welcomeAvatar');
+  if(!overlay) { switchToInvestigator(); return; }
+  wName.textContent = 'Welcome, ' + name.split(' ')[0];
+  if(avatar) { wAvatar.src = avatar; wAvatar.style.display = 'block'; }
+  else { wAvatar.style.display = 'none'; }
+  overlay.classList.add('show');
+  setTimeout(() => {
+    overlay.classList.add('fade-out');
+    setTimeout(() => {
+      overlay.classList.remove('show','fade-out');
+      switchToInvestigator();
+    }, 400);
+  }, 1800);
 }
 
 function clearUser() {
@@ -2971,7 +3187,10 @@ function continueAsGuest() {
 function showJournalContent() {
   document.getElementById('journalAuthWall').style.display = 'none';
   document.getElementById('journalContent').style.display = 'block';
-  renderJournalList();
+  renderInvestigator();
+  const saved = localStorage.getItem('veil_notes')||'';
+  const notesEl = document.getElementById('invNotes');
+  if(notesEl) notesEl.value = saved;
 }
 
 function showJournalAuth() {
@@ -5182,6 +5401,7 @@ function saveNotes(){
 
 // ── SHARE ─────────────────────────────────────────────────────────────────────
 function generateShare(){
+  if(!bucketList.length){ showToast('Nothing to share','Add some locations to your list first'); return; }
   const data={b:bucketList.map(x=>({i:x.id,v:x.visited?1:0,n:x.note||''})),notes:document.getElementById('invNotes').value.slice(0,500)};
   const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const url=window.location.href.split('?')[0]+'?share='+encoded;
@@ -5669,6 +5889,14 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 </script>
+
+<!-- WELCOME OVERLAY -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-icon">👻</div>
+  <img class="welcome-avatar" id="welcomeAvatar" src="" alt="">
+  <div class="welcome-name" id="welcomeName"></div>
+  <div class="welcome-sub">Welcome to The Veil</div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </body>
 </html>
