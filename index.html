@@ -5232,16 +5232,16 @@ function renderNearby(loc){
     .sort((a,b)=>a.dist-b.dist)
     .slice(0,3);
   if(!nearby.length) return '';
-  return \`<div class="nearby-section">
+  return `<div class="nearby-section">
     <div class="modal-section-title">Nearby locations</div>
     <div class="nearby-grid">
-      \${nearby.map(n=>\`<div class="nearby-card" onclick="closeModal('detailModal');setTimeout(()=>openLocation(\${n.id}),150)">
-        <div class="nearby-card-name">\${n.name}</div>
-        <div class="nearby-card-meta">\${n.city} · \${n.type}</div>
-        <div class="nearby-card-dist">\${n.dist<1?'<1':Math.round(n.dist)} km away</div>
-      </div>\`).join('')}
+      ${nearby.map(n=>`<div class="nearby-card" onclick="closeModal('detailModal');setTimeout(()=>openLocation(${n.id}),150)">
+        <div class="nearby-card-name">${n.name}</div>
+        <div class="nearby-card-meta">${n.city} · ${n.type}</div>
+        <div class="nearby-card-dist">${n.dist<1?'<1':Math.round(n.dist)} km away</div>
+      </div>`).join('')}
     </div>
-  </div>\`;
+  </div>`;
 }
 
 // ── CATEGORY / QUICK FILTERS ─────────────────────────────────────────────────
@@ -5789,7 +5789,7 @@ function openLocation(id){
             <div class="test-text">"${r.text}"</div>
           </div>`).join('')
         : `<p style="font-size:14px;color:var(--text3);font-style:italic;">No testimonies yet — be the first to share your experience below.</p>`}
-      \${renderNearby(l)}
+      ${renderNearby(l)}
 
       <div class="add-testimony">
         <div class="modal-section-title">Share your experience</div>
