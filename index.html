@@ -2190,12 +2190,13 @@ footer a{color:var(--teal);text-decoration:none;}
   <div class="mobile-nav-divider"></div>
   <div style="padding:0 1rem;margin-bottom:8px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey3);">Browse by type</div>
   <a class="mobile-nav-item" href="#" onclick="filterByType('Castle');showDirectory();closeMobileNav();return false;">🏰 Castles</a>
+  <a class="mobile-nav-item" href="#" onclick="filterByType('House');showDirectory();closeMobileNav();return false;">🏚 Houses</a>
   <a class="mobile-nav-item" href="#" onclick="filterByType('Prison');showDirectory();closeMobileNav();return false;">⛓ Prisons</a>
   <a class="mobile-nav-item" href="#" onclick="filterByType('Church');showDirectory();closeMobileNav();return false;">⛪ Churches</a>
   <a class="mobile-nav-item" href="#" onclick="filterByType('Inn / Pub');showDirectory();closeMobileNav();return false;">🍺 Pubs & Inns</a>
   <a class="mobile-nav-item" href="#" onclick="filterByType('Hospital');showDirectory();closeMobileNav();return false;">🏥 Hospitals</a>
   <a class="mobile-nav-item" href="#" onclick="filterByType('Woodland');showDirectory();closeMobileNav();return false;">🌲 Woodland</a>
-  <a class="mobile-nav-item" href="#" onclick="filterByType('Castle');filterByScare(5);showDirectory();closeMobileNav();return false;">💀 Extreme only</a>
+  <a class="mobile-nav-item" href="#" onclick="filterByType('');filterByScare(5);showDirectory();closeMobileNav();return false;">💀 Extreme only</a>
 </div>
 
 <!-- HOME PAGE (hidden when directory shown) -->
@@ -3458,6 +3459,28 @@ footer a{color:var(--teal);text-decoration:none;}
       </select>
     </div>
     <div style="margin-bottom:12px;">
+      <div class="filter-heading" style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey3);margin-bottom:8px;">Type</div>
+      <select id="mobileTypeSel" onchange="filterByType(this.value);" style="width:100%;padding:10px;border:1.5px solid var(--grey2);border-radius:4px;font-size:14px;">
+        <option value="">All types</option>
+        <option value="Castle">🏰 Castles</option>
+        <option value="House">🏚 Houses</option>
+        <option value="Prison">⛓ Prisons</option>
+        <option value="Hospital">🏥 Hospitals</option>
+        <option value="Inn / Pub">🍺 Pubs &amp; Inns</option>
+        <option value="Church">⛪ Churches</option>
+        <option value="Woodland">🌲 Woodland</option>
+        <option value="Other">🔦 Other</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div class="filter-heading" style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey3);margin-bottom:8px;">Price</div>
+      <select id="mobilePriceSel" onchange="document.getElementById('priceSel').value=this.value;applyFilters();" style="width:100%;padding:10px;border:1.5px solid var(--grey2);border-radius:4px;font-size:14px;">
+        <option value="">Any price</option>
+        <option value="free">Free only</option>
+        <option value="paid">Paid only</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px;">
       <div class="filter-heading" style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey3);margin-bottom:8px;">Sort by</div>
       <select id="mobileSortSel" onchange="document.getElementById('sortSel').value=this.value;applyFilters();" style="width:100%;padding:10px;border:1.5px solid var(--grey2);border-radius:4px;font-size:14px;">
         <option value="rating">Highest rated</option>
@@ -3467,7 +3490,8 @@ footer a{color:var(--teal);text-decoration:none;}
         <option value="name">Name A–Z</option>
       </select>
     </div>
-    <button onclick="applyFilters();closeFilterDrawer();" style="width:100%;padding:13px;background:var(--navy);color:white;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;">Apply</button>
+    <button onclick="applyFilters();closeFilterDrawer();" style="width:100%;padding:13px;background:var(--navy);color:white;border:none;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;">Apply filters</button>
+    <button onclick="filterByType('');document.getElementById('mobileRegionSel').value='';document.getElementById('mobileTypeSel').value='';document.getElementById('mobilePriceSel').value='';document.getElementById('regionSel').value='';applyFilters();closeFilterDrawer();" style="width:100%;padding:11px;background:transparent;color:var(--grey3);border:1.5px solid var(--grey2);border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;">Clear filters</button>
   </div>
 </div>
 
@@ -6324,7 +6348,7 @@ const LOCATIONS = [
     rating:0, reviews:0, featured:false,
     price:"Free", priceNote:"Bristol City Council — free admission · Ghost tours available",
     bookingUrl:"https://arnosvale.org.uk/",
-    mamsUrl:"https://maps.google.com/?q=Arnos+Vale+Cemetery+Bristol",
+    mapsUrl:"https://maps.google.com/?q=Arnos+Vale+Cemetery+Bristol",
     img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Arnos_Vale_Cemetery.jpg/640px-Arnos_Vale_Cemetery.jpg",
     desc:"A magnificent Victorian garden cemetery in Bristol, opened in 1837 and containing Grade II listed buildings including a Greek Revival mortuary chapel. Fallen into disrepair in the late 20th century and subsequently restored, the cemetery contains the graves of figures including Raja Rammohun Roy, the Indian social reformer. A white lady is reported near the older section of the cemetery, and investigators consistently report the strongest phenomena near the Egyptian-style catacombs.",
     tags:["Victorian cemetery","Garden cemetery","White lady","Greek Revival","Bristol","Raja Rammohun Roy","Catacombs","Free"],
@@ -6765,7 +6789,7 @@ async function loadBucketFromCloud(){
       .from('investigator_journals')
       .select('bucket,notes')
       .eq('user_id', currentUser.id)
-      .single();
+      .maybeSingle();
     if(error || !data) return;
     if(data.bucket){
       const cloudBucket = JSON.parse(data.bucket);
@@ -6908,8 +6932,11 @@ function renderNearby(loc){
 // ── CATEGORY / QUICK FILTERS ─────────────────────────────────────────────────
 function filterByType(type){
   document.getElementById('typeGrid').querySelectorAll('.fchip').forEach(b=>{
-    b.classList.toggle('active', type==='' || b.textContent===type);
+    b.classList.toggle('active', type==='' || b.textContent.trim()===type);
   });
+  // Keep mobile select in sync
+  const mob = document.getElementById('mobileTypeSel');
+  if(mob) mob.value = type;
   applyFilters();
 }
 
@@ -7374,7 +7401,8 @@ function setReportStar(n){
 }
 
 function openLocation(id){
-  const l=LOCATIONS.find(x=>x.id===Number(id));
+  id = Number(id);
+  const l=LOCATIONS.find(x=>x.id===id);
   if(!l) return;
   const inList=bucketList.some(b=>b.id===id&&!b.visited);
   const isVisited=bucketList.some(b=>b.id===id&&b.visited);
