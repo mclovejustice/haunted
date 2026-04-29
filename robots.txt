@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://theveil.co.uk/sitemap.xml
+Sitemap: https://ghostplanner.app/sitemap.xml
 
 # AI / LLM crawlers — welcome, this is a public directory
 User-agent: GPTBot
