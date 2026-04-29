@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://ghostplanner.app/">
 <meta property="og:title" content="Ghost Planner — UK Haunted Locations Directory">
 <meta property="og:description" content="124 verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
-<meta property="og:image" content="https://ghostplanner.app/images/castles.png">
+<meta property="og:image" content="https://ghostplanner.app/og-image.png">
 <meta property="og:site_name" content="Ghost Planner">
 <meta property="og:locale" content="en_GB">
 
@@ -24,7 +24,7 @@
 <meta name="twitter:url" content="https://ghostplanner.app/">
 <meta name="twitter:title" content="Ghost Planner — UK Haunted Locations Directory">
 <meta name="twitter:description" content="124 verified haunted locations across the UK. Ghost hunting guides, scare ratings, booking info and investigator tools.">
-<meta name="twitter:image" content="https://ghostplanner.app/images/castles.png">
+<meta name="twitter:image" content="https://ghostplanner.app/og-image.png">
 
 <!-- Schema.org structured data -->
 <script type="application/ld+json">
@@ -2029,7 +2029,6 @@ footer a{color:var(--teal);text-decoration:none;}
   "sameAs": []
 }
 </script>
-<link rel="preload" href="images/castles.png" as="image">
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,700;1,8..60,300;1,8..60,400&family=Inter:wght@400;500;600;700&display=swap" as="style">
 <link rel="dns-prefetch" href="https://mthpnyjztheaoqfgkdiq.supabase.co">
 <link rel="dns-prefetch" href="https://upload.wikimedia.org">
@@ -2227,9 +2226,15 @@ footer a{color:var(--teal);text-decoration:none;}
       <input type="text" id="homeSearch" placeholder="Search by name, type, city or phenomenon…" onkeydown="if(event.key==='Enter')homeSearchGo()">
       <select id="homeSearchRegion" style="border-left:1px solid var(--grey2);">
         <option value="">All regions</option>
-        <option>Scotland</option><option>Wales</option><option>Northern Ireland</option>
-        <option>England — North</option><option>England — Midlands</option>
-        <option>England — South</option><option>England — East</option><option>England — London</option>
+        <option value="Scotland">Scotland</option>
+        <option value="Wales">Wales</option>
+        <option value="Northern Ireland">Northern Ireland</option>
+        <option value="Ireland">Ireland</option>
+        <option value="England — North">England — North</option>
+        <option value="England — Midlands">England — Midlands</option>
+        <option value="England — South">England — South</option>
+        <option value="England — East">England — East</option>
+        <option value="England — London">England — London</option>
       </select>
       <button class="home-search-btn" onclick="homeSearchGo()">Search locations</button>
     </div>
@@ -2254,37 +2259,37 @@ footer a{color:var(--teal);text-decoration:none;}
     </div>
     <div class="cat-grid">
       <div class="cat-card" onclick="filterByType('Castle');showDirectory();">
-        <img class="cat-img" src="images/castles.png" alt="Haunted Castles">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#1a1a2e 0%,#2d1b4e 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">🏰</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Castles &amp; Fortresses<span class="cat-count" id="catCountCastle"></span></div>
       </div>
       <div class="cat-card" onclick="filterByType('Prison');showDirectory();">
-        <img class="cat-img" src="images/prisons.png" alt="Haunted Prisons">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#1a0a0a 0%,#3d1a1a 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">⛓</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Haunted Prisons<span class="cat-count" id="catCountPrison"></span></div>
       </div>
       <div class="cat-card" onclick="filterByType('House');showDirectory();">
-        <img class="cat-img" src="images/houses.png" alt="Haunted Houses">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#0a1a2e 0%,#1a3a5e 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">🏚</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Houses<span class="cat-count" id="catCountHouse"></span></div>
       </div>
       <div class="cat-card" onclick="filterByType('Inn / Pub');showDirectory();">
-        <img class="cat-img" src="images/pubs.png" alt="Haunted Pubs and Inns">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#1a1000 0%,#3d2800 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">🍺</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Inns &amp; Pubs<span class="cat-count" id="catCountInn"></span></div>
       </div>
       <div class="cat-card" onclick="filterByType('Woodland');showDirectory();">
-        <img class="cat-img" src="images/woodlands.png" alt="Haunted Woodland">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#0a1a0a 0%,#1a3a1a 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">🌲</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Woodland &amp; Outdoors<span class="cat-count" id="catCountWoodland"></span></div>
       </div>
       <div class="cat-card" onclick="filterByType('Hospital');showDirectory();">
-        <img class="cat-img" src="images/hospitals.png" alt="Haunted Hospitals">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#1a0a1a 0%,#3a1a3a 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">🏥</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Hospitals &amp; Asylums<span class="cat-count" id="catCountHospital"></span></div>
       </div>
       <div class="cat-card" onclick="filterByType('Church');showDirectory();">
-        <img class="cat-img" src="images/churches.png" alt="Haunted Churches">
+        <div class="cat-img cat-img-css" style="background:linear-gradient(135deg,#0d0d1a 0%,#1a1a3a 100%);display:flex;align-items:center;justify-content:center;font-size:56px;">⛪</div>
         <div class="cat-overlay"></div>
         <div class="cat-label">Churches &amp; Abbeys<span class="cat-count" id="catCountChurch"></span></div>
       </div>
@@ -3453,9 +3458,15 @@ footer a{color:var(--teal);text-decoration:none;}
       <div class="filter-heading" style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey3);margin-bottom:8px;">Region</div>
       <select id="mobileRegionSel" onchange="document.getElementById('regionSel').value=this.value;applyFilters();" style="width:100%;padding:10px;border:1.5px solid var(--grey2);border-radius:4px;font-size:14px;">
         <option value="">All regions</option>
-        <option>Scotland</option><option>Wales</option><option>Northern Ireland</option>
-        <option>England — North</option><option>England — Midlands</option>
-        <option>England — South</option><option>England — East</option><option>England — London</option>
+        <option value="Scotland">Scotland</option>
+        <option value="Wales">Wales</option>
+        <option value="Northern Ireland">Northern Ireland</option>
+        <option value="Ireland">Ireland</option>
+        <option value="England — North">England — North</option>
+        <option value="England — Midlands">England — Midlands</option>
+        <option value="England — South">England — South</option>
+        <option value="England — East">England — East</option>
+        <option value="England — London">England — London</option>
       </select>
     </div>
     <div style="margin-bottom:12px;">
@@ -7402,8 +7413,9 @@ function setReportStar(n){
 
 function openLocation(id){
   id = Number(id);
-  const l=LOCATIONS.find(x=>x.id===id);
-  if(!l) return;
+  if(!id || isNaN(id)) return;
+  const l=LOCATIONS.find(x=>x&&x.id===id);
+  if(!l) { console.warn('Location not found:', id); return; }
   const inList=bucketList.some(b=>b.id===id&&!b.visited);
   const isVisited=bucketList.some(b=>b.id===id&&b.visited);
   const equip = EQUIPMENT_MAP[l.type]||EQUIPMENT_MAP['Other'];
