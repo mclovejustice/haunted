@@ -3504,18 +3504,46 @@ footer a{color:var(--teal);text-decoration:none;}
       </div>
       <div class="report-field" style="margin-bottom:10px;">
         <label style="font-size:12px;font-weight:600;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Overall experience rating</label>
-        <div class="report-rating-row" id="reportStars">${[1,2,3,4,5].map(n=>`<span class="report-star" onclick="setReportStar(${n})">★</span>`).join('')}</div>
+        <div class="report-rating-row" id="reportStars">
+          <span class="report-star" onclick="setReportStar(1)">★</span>
+          <span class="report-star" onclick="setReportStar(2)">★</span>
+          <span class="report-star" onclick="setReportStar(3)">★</span>
+          <span class="report-star" onclick="setReportStar(4)">★</span>
+          <span class="report-star" onclick="setReportStar(5)">★</span>
+        </div>
       </div>
       <div class="report-field" style="margin-bottom:10px;">
         <label style="font-size:12px;font-weight:600;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Phenomena experienced</label>
         <div class="report-tags-wrap" id="reportPhenomena">
-          ${['Cold spots','EVP','Apparition','Poltergeist','Physical contact','Voices','Knocking','Object movement','Equipment response','Shadow figure','Smell','Emotional response'].map(t=>`<button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">${t}</button>`).join('')}
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Cold spots</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">EVP</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Apparition</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Poltergeist</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Physical contact</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Voices</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Knocking</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Object movement</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Equipment response</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Shadow figure</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Smell</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Emotional response</button>
         </div>
       </div>
       <div class="report-field" style="margin-bottom:10px;">
         <label style="font-size:12px;font-weight:600;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Equipment used</label>
         <div class="report-tags-wrap" id="reportEquipUsed">
-          ${['EMF meter','Spirit box','EVP recorder','K-II meter','Thermal camera','REM pod','Ouija board','Dowsing rods','UV torch','Motion sensor','Full spectrum camera','Laser grid'].map(t=>`<button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">${t}</button>`).join('')}
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">EMF meter</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Spirit box</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">EVP recorder</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">K-II meter</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Thermal camera</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">REM pod</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Ouija board</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Dowsing rods</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">UV torch</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Motion sensor</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Full spectrum camera</button>
+          <button class="report-tag-toggle" onclick="this.classList.toggle('rt-active')">Laser grid</button>
         </div>
       </div>
       <div class="report-field" style="margin-bottom:1rem;">
@@ -3562,8 +3590,13 @@ async function initAuth() {
         if (window.history.replaceState) {
           window.history.replaceState({}, document.title, window.location.pathname);
         }
-        showWelcome(session.user.user_metadata?.full_name || session.user.email,
-                    session.user.user_metadata?.avatar_url || '');
+        // Only show welcome on actual fresh OAuth login, not session restores
+        const justLoggedIn = sessionStorage.getItem('veil_just_logged_in');
+        if (justLoggedIn) {
+          sessionStorage.removeItem('veil_just_logged_in');
+          showWelcome(session.user.user_metadata?.full_name || session.user.email,
+                      session.user.user_metadata?.avatar_url || '');
+        }
       }
     } else if (_event === 'TOKEN_REFRESHED' && session) {
       setUserQuiet(session.user);
@@ -3585,30 +3618,26 @@ async function initAuth() {
 // Silent restore — no welcome screen, just update UI
 function setUserQuiet(user) {
   currentUser = user;
-  const name = user.user_metadata?.full_name || user.email;
-  const avatar = user.user_metadata?.avatar_url || '';
+  const googleName = user.user_metadata?.full_name || user.email;
+  const customName = localStorage.getItem('veil_profile_name') || '';
+  const displayName = customName || googleName;
   const navBtn = document.getElementById('navLoginBtn');
-  if (navBtn) { navBtn.textContent = name.split(' ')[0]; navBtn.onclick = switchToInvestigator; }
-  const nameEl = document.getElementById('journalUserName');
-  const avatarEl = document.getElementById('journalAvatar');
-  if (nameEl) nameEl.textContent = name;
-  if (avatarEl) avatarEl.src = avatar;
+  if (navBtn) { navBtn.textContent = displayName.split(' ')[0]; navBtn.onclick = switchToInvestigator; }
+  applyProfile();
+  // Load cloud-saved journal data
+  loadBucketFromCloud();
 }
 
 function setUser(user) {
   currentUser = user;
-  const name = user.user_metadata?.full_name || user.email;
-  const avatar = user.user_metadata?.avatar_url || '';
-  // Update nav
+  const googleName = user.user_metadata?.full_name || user.email;
+  const googleAvatar = user.user_metadata?.avatar_url || '';
+  const customName = localStorage.getItem('veil_profile_name') || '';
+  const displayName = customName || googleName;
   const navBtn = document.getElementById('navLoginBtn');
-  if (navBtn) { navBtn.textContent = name.split(' ')[0]; navBtn.onclick = switchToInvestigator; }
-  // Update journal UI
-  const nameEl = document.getElementById('journalUserName');
-  const avatarEl = document.getElementById('journalAvatar');
-  if (nameEl) nameEl.textContent = name;
-  if (avatarEl) avatarEl.src = avatar;
-  // Show welcome flash then go to journal
-  showWelcome(name, avatar);
+  if (navBtn) { navBtn.textContent = displayName.split(' ')[0]; navBtn.onclick = switchToInvestigator; }
+  applyProfile();
+  showWelcome(displayName, googleAvatar);
 }
 
 function showWelcome(name, avatar) {
@@ -3636,6 +3665,7 @@ function clearUser() {
 }
 
 async function signInWithGoogle() {
+  sessionStorage.setItem('veil_just_logged_in', '1');
   await _supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + window.location.pathname }
@@ -5717,7 +5747,983 @@ const LOCATIONS = [
       {author:"Harry Martindale, 1953", source:"Harry Martindale's published testimony", stars:5, text:"I fell off my ladder with fright. A Roman soldier came out of the wall. Then another. Then a whole column of them, with a horse. They were completely solid. They walked across the cellar and into the opposite wall."},
       {author:"National Trust guide", source:"NT Treasurer's House", stars:4, text:"Visitors in the cellar continue to report presences, sounds, and on a few occasions figures. Harry's account is always the benchmark but it is far from the only one."}
     ]
+  },  ,{
+    id:155, name:"Aldwych Underground Station", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£15–£25pp", priceNote:"Ghost events via London Ghost Tours and Haunted Rooms · Film location hire also available",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Aldwych+Underground+Station+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Aldwych_station_closed.jpg/640px-Aldwych_station_closed.jpg",
+    desc:"A disused London Underground station on the Piccadilly line, closed in 1994. Used as a film location for dozens of productions including Atonement and V for Vendetta. Staff working alone during its operational years reported a female apparition on the platform — believed to be an actress killed in a WWII air raid in the nearby theatre. The station's sealed tunnels and preserved 1930s infrastructure make it one of London's most atmospheric investigation venues.",
+    tags:["Disused tube","Female apparition","WWII","London Underground","Film location","Piccadilly line"],
+    lat:51.5129, lng:-0.1174,
+    source:"London Ghost Walks, Transport for London heritage records",
+    summary:"Aldwych's paranormal reputation predates its use as a ghost hunting venue — reports from TfL staff working alone on the platform during its operational years are documented internally. The female apparition is consistently described in period clothing. The station's perfectly preserved 1930s design, working lifts, and sealed tunnel network beyond the platform create an investigation environment unlike any other in London.",
+    testimonies:[]
   },
+  {
+    id:156, name:"Cane Hill Asylum", city:"Coulsdon", region:"England — London", type:"Hospital", scare:5,
+    rating:0, reviews:0, featured:false,
+    price:"£45–£75pp", priceNote:"Ghost hunt events via various operators · Much of the site has been redeveloped",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Cane+Hill+Asylum+Coulsdon+Surrey",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cane_Hill_Hospital_Chapel.jpg/640px-Cane_Hill_Hospital_Chapel.jpg",
+    desc:"A Victorian lunatic asylum opened in 1882 and closed in 1991, where John Lennon's mother was treated and which reportedly inspired the name of David Bowie's half-brother. One of the largest Victorian asylum complexes ever built in England. Before its partial demolition, investigators consistently reported apparitions in the chapel, violent poltergeist phenomena in the former ward blocks, and an overwhelming sense of malevolent presence throughout.",
+    tags:["Victorian asylum","David Bowie","John Lennon","Poltergeist","Chapel","Surrey","Demolished"],
+    lat:51.3167, lng:-0.1167,
+    source:"higgypop.com/hauntings/london, urban exploration records",
+    summary:"Cane Hill's paranormal reputation was established through thousands of urban exploration visits before demolition began. The chapel — the most intact surviving structure — is the focus of remaining investigation activity. The asylum's history of treating severely mentally ill patients under Victorian and early 20th-century conditions, combined with its scale and decades of abandonment, produced an intensity of atmosphere that investigators consistently rated among the highest of any London location.",
+    testimonies:[]
+  },
+  {
+    id:157, name:"Ham House", city:"Richmond", region:"England — London", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£13pp", priceNote:"National Trust — members free · Adults from £13pp",
+    bookingUrl:"https://www.nationaltrust.org.uk/visit/london/ham-house-and-garden",
+    mapsUrl:"https://maps.google.com/?q=Ham+House+Richmond+Surrey",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Ham_House_from_the_South.jpg/640px-Ham_House_from_the_South.jpg",
+    desc:"A 17th-century mansion on the Thames at Richmond, built in 1610 and remarkably unchanged. The ghost of the Duchess of Lauderdale — Elizabeth Murray, who transformed the house in the 1670s — is reported throughout the building, particularly on the staircase. A small dog apparition runs through the corridors and disappears into walls. The smell of roses with no apparent source is reported in the Duchess's bedroom.",
+    tags:["Duchess of Lauderdale","Elizabeth Murray","Dog apparition","National Trust","Thames","Stuart period"],
+    lat:51.4441, lng:-0.3102,
+    source:"National Trust, Richmond Ghost Walk",
+    summary:"Ham House is one of the best-preserved Stuart houses in Europe and its haunting has a corresponding historical depth. The Duchess of Lauderdale was a formidable political figure who effectively ran the house as a centre of Restoration power — her attachment to the building in death is consistent with her evident attachment in life. The dog apparition is reported independently by visitors with no prior knowledge, and the rose scent in the bedroom is a consistently noted phenomenon.",
+    testimonies:[]
+  },
+  {
+    id:158, name:"Hack Green Nuclear Bunker", city:"Nantwich", region:"England — North", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£10pp", priceNote:"Adults from £10pp · Ghost events via third parties",
+    bookingUrl:"https://www.hackgreen.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Hack+Green+Nuclear+Bunker+Cheshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Hack_Green_Secret_Nuclear_Bunker.jpg/640px-Hack_Green_Secret_Nuclear_Bunker.jpg",
+    desc:"A former secret government nuclear bunker beneath the Cheshire countryside, operational from the 1950s to 1992 as a Regional Government Headquarters for nuclear war. Now a museum. The bunker's history — designed to house 135 government staff while the rest of Britain died — gives it a unique psychological weight. Staff and investigators report cold spots, equipment failure, and apparitions of uniformed figures still at their posts in the operations rooms.",
+    tags:["Cold War","Nuclear bunker","Secret government","Uniformed apparitions","Cheshire","Underground"],
+    lat:53.0167, lng:-2.5333,
+    source:"hackgreen.co.uk, Cheshire Ghost Walks",
+    summary:"Hack Green's paranormal atmosphere is inseparable from its function — a place built and staffed in the sincere expectation of nuclear apocalypse. The operations rooms, sleeping quarters, and communications centre are all preserved intact. Investigators report the strongest phenomena in the operations room, where the psychological weight of decisions never made but planned for seems to have left an imprint. The bunker's underground nature and isolation from natural light create a distinctive investigation environment.",
+    testimonies:[]
+  },
+  {
+    id:159, name:"Ordsall Hall", city:"Salford", region:"England — North", type:"House", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"Free–£35pp", priceNote:"Daytime admission free · Ghost events from £35pp via Salford City Council",
+    bookingUrl:"https://www.salfordcitycouncil.gov.uk/ordsall-hall",
+    mapsUrl:"https://maps.google.com/?q=Ordsall+Hall+Salford",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Ordsall_Hall.jpg/640px-Ordsall_Hall.jpg",
+    desc:"A magnificent black-and-white timbered hall in Salford dating from the 14th century, considered Manchester's most haunted building. The White Lady — believed to be Margaret Radclyffe, a lady-in-waiting to Queen Elizabeth I who died of grief — is reported throughout the hall. Guy Fawkes allegedly met with fellow conspirators here in 1605. Investigators report one of the highest rates of equipment response of any North West venue.",
+    tags:["White Lady","Margaret Radclyffe","Guy Fawkes","Tudor","Salford","Manchester","Timber-framed"],
+    lat:53.4757, lng:-2.2826,
+    source:"Salford City Council, Manchester Ghost Walks",
+    summary:"Ordsall Hall's paranormal reputation is long-established and pre-dates any commercial ghost hunting interest. The White Lady is documented in 19th-century accounts of the hall and continues to be reported by modern visitors. The Star Chamber — the oldest surviving room in the hall — produces the strongest investigator responses. The hall's connection to Guy Fawkes and the Gunpowder Plot adds a nationally significant historical dimension.",
+    testimonies:[]
+  },
+  {
+    id:160, name:"Antwerp Mansion", city:"Manchester", region:"England — North", type:"House", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£35–£65pp", priceNote:"Ghost events and Halloween events via various operators",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Antwerp+Mansion+Manchester",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Antwerp_Mansion_Rusholme.jpg/640px-Antwerp_Mansion_Rusholme.jpg",
+    desc:"A Victorian mansion in Rusholme, Manchester, built in 1857 and later used as a hospital and club venue. One of the most actively investigated paranormal locations in the North West. Reports include a Victorian gentleman seen in the upper rooms, a child apparition on the staircase, unexplained music, doors slamming in empty corridors, and one of the most consistent rates of trigger object activation of any Manchester venue.",
+    tags:["Victorian mansion","Victorian gentleman","Child apparition","Rusholme","Manchester","Trigger objects"],
+    lat:53.4508, lng:-2.2191,
+    source:"Haunted Rooms UK, Manchester Paranormal Investigators",
+    summary:"Antwerp Mansion has become one of Manchester's premier investigation venues through consistent, high-quality paranormal reports from multiple independent investigation companies. The Victorian gentleman apparition is independently described with unusual consistency — period frock coat, absorbed in thought, appearing and disappearing without theatrical transition. The child on the staircase is reported by investigators with no prior knowledge of the location.",
+    testimonies:[]
+  },
+  {
+    id:161, name:"Kirkstall Abbey", city:"Leeds", region:"England — North", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Leeds City Council — free admission to grounds · Abbey House Museum adjacent",
+    bookingUrl:"https://www.leeds.gov.uk/leisure-and-culture/parks-and-countryside/kirkstall-abbey",
+    mapsUrl:"https://maps.google.com/?q=Kirkstall+Abbey+Leeds",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Kirkstall_Abbey%2C_Leeds.jpg/640px-Kirkstall_Abbey%2C_Leeds.jpg",
+    desc:"A ruined Cistercian monastery on the banks of the River Aire in Leeds, founded in 1152 and dissolved by Henry VIII in 1539. One of the most complete medieval abbey ruins in England. The ghost of a monk — seen in the nave, cloisters and on the riverbank — has been reported for centuries. Visitors report a strong presence in the chapter house and unexplained chanting heard near the river at dusk.",
+    tags:["Cistercian","Medieval","Monk apparition","River Aire","Leeds","Henry VIII","Free"],
+    lat:53.8193, lng:-1.5803,
+    source:"Leeds City Council, Yorkshire Ghost Guide",
+    summary:"Kirkstall's paranormal history reflects its age — reports of a monk in the ruins are documented from the 18th century onwards, long before any commercial interest in the haunting. The chapter house and the nave produce the strongest reports, consistent with the areas of most intense monastic life. The riverside location at dusk creates one of Yorkshire's most atmospheric free-to-visit experiences.",
+    testimonies:[]
+  },
+  {
+    id:162, name:"Bolling Hall", city:"Bradford", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Bradford Council Museums — free admission",
+    bookingUrl:"https://www.bradfordmuseums.org/venues/bolling-hall",
+    mapsUrl:"https://maps.google.com/?q=Bolling+Hall+Bradford",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Bolling_Hall%2C_Bradford.jpg/640px-Bolling_Hall%2C_Bradford.jpg",
+    desc:"A medieval and Jacobean manor house in Bradford with one of the most dramatically documented hauntings in Yorkshire. During the Civil War siege of Bradford in 1643, the Earl of Newcastle — quartered at Bolling Hall — was woken at 3am by a female apparition who clutched his bedclothes and begged him repeatedly to 'pity poor Bradford.' He ordered a cessation of the planned massacre the following morning. The apparition is still seen in the room.",
+    tags:["Civil War","Earl of Newcastle","Female apparition","Pity poor Bradford","Bradford","Medieval","Free"],
+    lat:53.7832, lng:-1.7471,
+    source:"Bradford Council Museums, Yorkshire Civil War records",
+    summary:"Bolling Hall's Civil War haunting is among the most historically grounded paranormal accounts in England — the Earl of Newcastle's change of orders is documented in contemporary military records, and the apparition that prompted it is described in accounts written within years of the event. The room associated with the apparition continues to produce independent reports of a female presence. Free admission makes this one of Yorkshire's most accessible historically significant haunted sites.",
+    testimonies:[]
+  },
+  {
+    id:163, name:"Chislehurst Caves", city:"Chislehurst", region:"England — South", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£8pp", priceNote:"Chislehurst Caves Ltd — adults from £8pp · Ghost tours available",
+    bookingUrl:"https://www.chislehurstcaves.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Chislehurst+Caves+Kent",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Chislehurst_caves_entrance.jpg/640px-Chislehurst_caves_entrance.jpg",
+    desc:"Twenty miles of hand-dug chalk caverns beneath the Kent countryside, used variously as Druid burial chambers, munitions store, mushroom farm, air raid shelter for 15,000 Londoners during the Blitz, and concert venue for Jimi Hendrix and the Rolling Stones. The Druid altar chamber is the most paranormally active area — a ghostly Cavalier, a headless drummer, and a woman who beckons visitors into the tunnel network have all been reported independently.",
+    tags:["Chalk caves","Druids","WWII shelter","Cavalier","Headless drummer","Kent","Blitz"],
+    lat:51.4167, lng:0.0667,
+    source:"chislehurstcaves.co.uk, Kent Ghost Guide",
+    summary:"Chislehurst Caves' paranormal reports span its entire documented history — Druid associations predate the modern era, Civil War connections account for the Cavalier apparition, and WWII shelter use accounts for additional reported presences. The cave system's 20-mile extent means that despite decades of guided tours, significant sections remain rarely visited and produce the strongest investigator responses. The woman beckoning from tunnels is the most frequently reported phenomenon and has caused several visitors to become separated from tour groups.",
+    testimonies:[]
+  },
+  {
+    id:164, name:"Clearwell Caves", city:"Coleford", region:"England — South", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£8pp", priceNote:"Clearwell Caves Ltd — adults from £8pp · Ghost events available",
+    bookingUrl:"https://www.clearwellcaves.com/",
+    mapsUrl:"https://maps.google.com/?q=Clearwell+Caves+Forest+of+Dean",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Clearwell_Caves.jpg/640px-Clearwell_Caves.jpg",
+    desc:"Ancient iron ore mines in the Forest of Dean, worked continuously for over 4,500 years and last commercially mined in 1945. The mines contain nine caverns open to the public and extend much further into the hillside. The ghost of a former miner — seen in work clothes with a lamp, moving through the deepest accessible caverns — is the most reported apparition. An overwhelming sense of presence in the 'Ancient Cavern' is noted by almost all visitors.",
+    tags:["Iron mines","Forest of Dean","Miner apparition","4500 years","Ancient Cavern","Gloucestershire"],
+    lat:51.7833, lng:-2.5833,
+    source:"clearwellcaves.com, Forest of Dean Ghost Guide",
+    summary:"Clearwell Caves' 4,500-year working history gives it an atmospheric depth that purely historical sites cannot match. The miner apparition — described consistently in work clothing with a lamp, moving purposefully through the deeper caverns — is reported by visitors and staff alike. The Ancient Cavern produces a near-universal sense of presence noted in visitor accounts across multiple decades. The combination of extreme age, industrial history, and underground isolation makes Clearwell one of the most distinctive investigation environments in the South West.",
+    testimonies:[]
+  }  ,{
+    id:165, name:"Adelphi Theatre", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"From £25pp", priceNote:"West End theatre — tickets from £25pp · Ghost tours via London Ghost Walks",
+    bookingUrl:"https://lwtheatres.co.uk/theatres/adelphi/",
+    mapsUrl:"https://maps.google.com/?q=Adelphi+Theatre+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Adelphi_theatre_2011.jpg/640px-Adelphi_theatre_2011.jpg",
+    desc:"A West End theatre on the Strand with one of London's most dramatically documented theatrical hauntings. William Terriss — a popular Victorian actor stabbed to death at the stage door in 1897 by a jealous fellow actor — is the primary apparition. He is reported at the stage door where he died, in the dressing rooms, and at Covent Garden Underground Station nearby. His ghost was officially investigated by the Society for Psychical Research.",
+    tags:["William Terriss","Victorian actor","Murder","Stage door","West End","Strand","SPR"],
+    lat:51.5107, lng:-0.1201,
+    source:"Society for Psychical Research records, London Theatre history",
+    summary:"The Terriss haunting is one of London's most credibly documented theatrical ghost cases — the SPR investigated accounts from station staff at Covent Garden who described a man in Victorian clothing appearing on the platform, and the accounts were found consistent with independent descriptions of Terriss. The stage door where he was stabbed produces the most intense reports. The theatre continues as a working West End venue.",
+    testimonies:[]
+  },
+  {
+    id:166, name:"Senate House Library", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"University of London — open to registered readers · Tours available",
+    bookingUrl:"https://senate-house-library.ac.uk/",
+    mapsUrl:"https://maps.google.com/?q=Senate+House+Library+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Senate_House%2C_London_2.jpg/640px-Senate_House%2C_London_2.jpg",
+    desc:"The imposing Art Deco tower that inspired George Orwell's Ministry of Truth in 1984 and served as the Ministry of Information during WWII. Hitler allegedly reserved it as his London headquarters in the event of a successful invasion. The upper floors — largely closed to the public — produce consistent reports of a female apparition among the stacks, and library staff working alone have reported books being moved and the presence of someone in empty aisles.",
+    tags:["Orwell","Ministry of Truth","WWII","Art Deco","University of London","Books moved","Female apparition"],
+    lat:51.5217, lng:-0.1300,
+    source:"University of London, London Ghost Guide",
+    summary:"Senate House's paranormal atmosphere is inseparable from its wartime history — the building that Orwell used as the model for totalitarian oppression, that Hitler coveted, and that was the nerve centre of British wartime information control. The female apparition in the upper stacks has been reported by library staff over several decades. The building's restricted upper floors are considered the most active areas.",
+    testimonies:[]
+  },
+  {
+    id:167, name:"The Savoy", city:"London", region:"England — London", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£400pp+", priceNote:"Luxury hotel — rooms from £400 per night",
+    bookingUrl:"https://www.thesavoylondon.com/",
+    mapsUrl:"https://maps.google.com/?q=The+Savoy+Hotel+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/The_Savoy_Hotel%2C_London.jpg/640px-The_Savoy_Hotel%2C_London.jpg",
+    desc:"London's most famous luxury hotel, opened in 1889, haunted by the ghost of Kaspar the cat and the spirit of a murdered Victorian guest. The most specific account involves a financier named Jim Corbett who threw a dinner party for 14 at the hotel — one guest left early and was murdered that same night. The hotel now places Kaspar, a black cat sculpture, at any table of 13 to act as the 14th guest and ward off the curse.",
+    tags:["Kaspar the cat","Table of 13","Victorian","Strand","Luxury hotel","Murder","Curse"],
+    lat:51.5104, lng:-0.1203,
+    source:"The Savoy official history, London Ghost Guide",
+    summary:"The Savoy's haunting is unusual in that the hotel has fully embraced one element of it — Kaspar the black cat sculpture, placed at tables of 13 since 1927, is a documented hotel tradition with a paranormal origin. The murdered guest story — in which a dinner party of 13 was followed by a guest's death, after which Kaspar was commissioned — is verified in hotel records. A Victorian gentleman apparition is reported separately in the upper corridor floors.",
+    testimonies:[]
+  },
+  {
+    id:168, name:"Greenwich Foot Tunnel", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Free public crossing under the Thames",
+    bookingUrl:"https://www.royalgreenwich.gov.uk/",
+    mapsUrl:"https://maps.google.com/?q=Greenwich+Foot+Tunnel+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Greenwich_Foot_Tunnel%2C_North_Entrance.jpg/640px-Greenwich_Foot_Tunnel%2C_North_Entrance.jpg",
+    desc:"A pedestrian tunnel beneath the Thames connecting Greenwich to the Isle of Dogs, opened in 1902. The 500-metre tunnel produces one of London's most consistently reported paranormal experiences — a tall figure that walks ahead of pedestrians and disappears at the midpoint, an overpowering sense of being followed, and sudden temperature drops at specific points along the tunnel. The isolation and acoustic properties of the tunnel amplify both sound and psychological intensity.",
+    tags:["Thames tunnel","Victorian","Following presence","Isle of Dogs","Free","Acoustic","Dark figure"],
+    lat:51.4835, lng:-0.0094,
+    source:"London Ghost Walks, Greenwich heritage records",
+    summary:"Greenwich Foot Tunnel's paranormal reputation rests on the consistent independent nature of reports rather than any single dramatic account. The figure at the midpoint — seen ahead, never behind, never turning around — is described across unconnected accounts from different decades. The tunnel's acoustic properties mean that sounds carry unpredictably, and the sense of being followed is physiologically reinforced by the echo of one's own footsteps. Free to visit at any hour.",
+    testimonies:[]
+  },
+  {
+    id:169, name:"King's Cross Station", city:"London", region:"England — London", type:"Other", scare:2,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Public railway station — no admission charge",
+    bookingUrl:"https://www.networkrail.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=King's+Cross+Station+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/KingsCross_sideview.jpg/640px-KingsCross_sideview.jpg",
+    desc:"One of London's busiest railway termini, built on the site of a Roman burial ground and believed by some to be the burial place of Queen Boudicca. A screaming woman has been reported in the underground areas since the catastrophic 1987 King's Cross fire that killed 31 people. Platform workers have reported unexplained figures in the older tunnels, and the station's Roman foundations are believed to contribute to its paranormal atmosphere.",
+    tags:["Boudicca","1987 fire","Roman burial","Screaming woman","Platform workers","Network Rail"],
+    lat:51.5308, lng:-0.1238,
+    source:"London Ghost Walks, Network Rail heritage records",
+    summary:"King's Cross sits at the intersection of several paranormal traditions — Roman burial, the possible resting place of Britain's most famous warrior queen, and the site of one of London's worst modern tragedies. The screaming figure reports post-1987 are the most recent and most consistently documented, reported by platform workers rather than the general public. The station's deep history beneath its Victorian and modern surface is reflected in its layered paranormal reports.",
+    testimonies:[]
+  },
+  {
+    id:170, name:"Manchester Cathedral", city:"Manchester", region:"England — North", type:"Church", scare:2,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Free admission · Donations welcome",
+    bookingUrl:"https://www.manchestercathedral.org/",
+    mapsUrl:"https://maps.google.com/?q=Manchester+Cathedral",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Manchester_Cathedral_2014.jpg/640px-Manchester_Cathedral_2014.jpg",
+    desc:"A medieval collegiate church founded in 1421 on the banks of the River Irwell, the oldest building in Manchester city centre. A monk apparition is reported in the nave and the choir stalls — seen kneeling in prayer before vanishing. The Cathedral was severely damaged by a German bomb in 1940 and rebuilt; staff working alone in the evening report footsteps in the repaired sections of the nave and a general sense of occupancy in empty buildings.",
+    tags:["Medieval","Monk apparition","Manchester","River Irwell","WWII bomb","Free","Choir stalls"],
+    lat:53.4851, lng:-2.2427,
+    source:"Manchester Cathedral, Manchester Ghost Walks",
+    summary:"Manchester Cathedral's haunting reflects its 600-year history as the spiritual centre of the city. The monk apparition — kneeling in prayer, oblivious to the modern world — is reported by clergy and staff rather than tourists, which gives the accounts additional weight. The WWII bomb damage and subsequent rebuilding appears to have created a boundary effect with stronger phenomena reported in the original medieval sections than the restored areas.",
+    testimonies:[]
+  },
+  {
+    id:171, name:"Speke Hall", city:"Liverpool", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£13pp", priceNote:"National Trust — members free · Adults from £13pp",
+    bookingUrl:"https://www.nationaltrust.org.uk/visit/liverpool-manchester/speke-hall",
+    mapsUrl:"https://maps.google.com/?q=Speke+Hall+Liverpool",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Speke_Hall.jpg/640px-Speke_Hall.jpg",
+    desc:"A magnificent Elizabethan timber-framed manor house near Liverpool Airport, built between 1530 and 1598 and remarkably preserved. The ghost of Mary Norris — who threw her baby into the moat in a fit of madness to prevent it crying and alerting priest hunters to the hidden Catholic priests in the walls — is the primary haunting. Her apparition walks the corridors, and the baby's crying has been reported in the great hall. Priest holes are still visible in the walls.",
+    tags:["Mary Norris","Baby in moat","Priest holes","Elizabethan","National Trust","Liverpool","Catholic"],
+    lat:53.3375, lng:-2.8622,
+    source:"National Trust, Liverpool Ghost Guide",
+    summary:"Speke Hall's haunting is grounded in one of the most tragic and specific historical events attached to any National Trust property. Mary Norris's act — drowning her baby to protect hidden priests — is documented in contemporary accounts of the household. Her apparition and the sound of a crying infant are reported independently in the same areas of the house. The surviving priest holes give physical weight to the historical context of the haunting.",
+    testimonies:[]
+  },
+  {
+    id:172, name:"Towneley Hall", city:"Burnley", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Burnley Council Museums — free admission",
+    bookingUrl:"https://towneleyhall.org.uk/",
+    mapsUrl:"https://maps.google.com/?q=Towneley+Hall+Burnley",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Towneley_Hall%2C_Burnley_2.jpg/640px-Towneley_Hall%2C_Burnley_2.jpg",
+    desc:"A medieval and Tudor manor house in Burnley, home of the Towneley family for 500 years and now an art gallery and museum. The ghost of a former lady of the house — seen in period dress moving through the older sections of the hall — is the most consistently reported apparition. A priest hole was discovered during renovations, and the building's long association with recusant Catholicism during the persecutions is considered by investigators to contribute to its atmospheric intensity.",
+    tags:["Towneley family","Tudor","Medieval","Priest hole","Burnley","Lancashire","Free","Catholic recusant"],
+    lat:53.7757, lng:-2.2176,
+    source:"Burnley Council, Lancashire Ghost Guide",
+    summary:"Towneley Hall's 500-year family history gives it a paranormal depth that many similar houses lack. The Towneley family's documented Catholic recusancy during the Reformation — hiding priests, maintaining secret chapels, risking execution — created exactly the conditions of fear and secrecy that investigators associate with residual hauntings. The lady of the house apparition has been reported by museum staff during out-of-hours work.",
+    testimonies:[]
+  },
+  {
+    id:173, name:"Eden Camp Museum", city:"Malton", region:"England — North", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£10pp", priceNote:"Adults from £10pp · Ghost events occasionally available",
+    bookingUrl:"https://www.edencamp.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Eden+Camp+Museum+Malton+Yorkshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Eden_Camp_Museum.jpg/640px-Eden_Camp_Museum.jpg",
+    desc:"A WWII prisoner of war camp near Malton in North Yorkshire, used to house Italian and later German prisoners from 1942 to 1948. Now a museum of civilian life in wartime. The former huts produce reports of uniformed figures, the sound of voices in foreign languages from empty buildings, and specific cold spots in the huts associated with deaths during the camp's operation. Staff working alone after hours consistently report activity in huts 5 and 12.",
+    tags:["WWII","POW camp","Italian prisoners","German prisoners","Yorkshire","Uniformed figures","Foreign voices"],
+    lat:54.1167, lng:-0.8000,
+    source:"Eden Camp Museum, Yorkshire Ghost Guide",
+    summary:"Eden Camp's paranormal reports are unusual in their cultural specificity — the foreign-language voices are described by witnesses as Italian and German rather than English, which is difficult to attribute to suggestion given that many visitors have no prior knowledge of the camp's specific national history. The hut numbering provided by staff is consistent across independent accounts. The camp's wartime function — housing men far from home in conditions of confinement and uncertainty — creates a strong residual imprint hypothesis.",
+    testimonies:[]
+  },
+  {
+    id:174, name:"Wentworth Woodhouse", city:"Rotherham", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£15pp", priceNote:"Wentworth Woodhouse Preservation Trust — adults from £15pp · Ghost events available",
+    bookingUrl:"https://wentworthwoodhouse.org.uk/",
+    mapsUrl:"https://maps.google.com/?q=Wentworth+Woodhouse+Rotherham",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Wentworth_Woodhouse.jpg/640px-Wentworth_Woodhouse.jpg",
+    desc:"The largest private house in England, with a facade longer than Buckingham Palace. Built in the 1720s-30s for the Marquesses of Rockingham. Requisitioned in WWII and subsequently used as a teacher training college. The sheer scale of the building — 365 rooms — creates an investigation environment unlike any other in England. A female apparition is reported in the east wing, and the tunnels beneath the house produce some of the strongest investigator responses.",
+    tags:["Largest private house","365 rooms","Female apparition","Underground tunnels","Rotherham","Georgian","WWII requisition"],
+    lat:53.4500, lng:-1.3667,
+    source:"Wentworth Woodhouse Preservation Trust, South Yorkshire Ghost Guide",
+    summary:"Wentworth Woodhouse's scale sets it apart from any other investigation venue in England — 365 rooms, miles of corridors, and an extensive tunnel network beneath the grounds. The preservation trust has only recently begun opening the house to visitors, and the paranormal reports are relatively new to documentation. The female apparition in the east wing is described by independent investigators, and the tunnels produce physical phenomena including temperature anomalies and equipment responses.",
+    testimonies:[]
+  },
+  {
+    id:175, name:"Fort Amherst", city:"Chatham", region:"England — South", type:"Other", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£8–£45pp", priceNote:"Day visits from £8pp · Ghost events from £45pp",
+    bookingUrl:"https://www.fortamherst.com/",
+    mapsUrl:"https://maps.google.com/?q=Fort+Amherst+Chatham+Kent",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Fort_Amherst_moat.jpg/640px-Fort_Amherst_moat.jpg",
+    desc:"Britain's most complete surviving Napoleonic fortress, built into the chalk hills above Chatham from 1756. The tunnels beneath the fort — carved by hand from solid chalk — extend for miles and include a WWII command centre. A soldier apparition in Napoleonic uniform, a screaming woman in the tunnels, and the overwhelming sound of marching in sealed sections have all been independently reported by investigators from multiple companies.",
+    tags:["Napoleonic","Tunnels","Chalk","Soldier apparition","Chatham","Kent","WWII command centre","Screaming woman"],
+    lat:51.3847, lng:0.5219,
+    source:"fortamherst.com, Kent Paranormal Guide",
+    summary:"Fort Amherst's chalk tunnel network creates one of the most claustrophobic and intense investigation environments in Southern England. The Napoleonic soldier apparition is consistently described in period uniform rather than generic military dress, which investigators note as an indicator of historical specificity rather than suggestion. The marching sounds from sealed tunnel sections have been recorded on audio equipment by multiple independent investigation teams.",
+    testimonies:[]
+  },
+  {
+    id:176, name:"Elvey Farm", city:"Pluckley", region:"England — South", type:"House", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£90–£150pp", priceNote:"Boutique hotel — rooms from £90 · Ghost events available",
+    bookingUrl:"https://www.elveyfarm.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Elvey+Farm+Pluckley+Kent",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Pluckley_Village_Sign.jpg/640px-Pluckley_Village_Sign.jpg",
+    desc:"A medieval farmhouse in Pluckley — once the most haunted village in England according to the Guinness Book of Records, with 12 documented ghosts. Elvey Farm itself is reported to be the most active building in the village, with a grey lady in the grounds, poltergeist activity in the older sections of the building, and multiple independent reports of a figure watching from the barn at night. Now a boutique hotel offering ghost weekends.",
+    tags:["Pluckley","Most haunted village","Grey Lady","Poltergeist","Medieval farmhouse","Kent","Guinness record"],
+    lat:51.2000, lng:0.7167,
+    source:"elveyfarm.co.uk, Pluckley Village Ghost Guide",
+    summary:"Elvey Farm sits at the centre of Pluckley's extraordinary paranormal reputation — a village where 12 distinct ghosts are documented in different locations across a small geographic area. The concentration of reports in one village is unusual even by UK standards. Elvey Farm's grey lady is among the most specific accounts, described consistently by guests who had no prior knowledge of the haunting. The barn figure is reported by guests in rooms overlooking the yard.",
+    testimonies:[]
+  },
+  {
+    id:177, name:"Bannockburn House", city:"Stirling", region:"Scotland", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£35pp+", priceNote:"Ghost events and private investigations available",
+    bookingUrl:"https://bannockburnhouse.scot/",
+    mapsUrl:"https://maps.google.com/?q=Bannockburn+House+Stirling",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bannockburn_House.jpg/640px-Bannockburn_House.jpg",
+    desc:"A 17th-century mansion near the site of the Battle of Bannockburn (1314), used by Bonnie Prince Charlie as his headquarters before the Battle of Falkirk in 1746. The Jacobite connection is strong — a young woman called Jean who sheltered the Prince and subsequently died is the most reported apparition. The house was derelict for decades before restoration began, and investigators who worked in the building during this period documented extraordinary phenomena.",
+    tags:["Bonnie Prince Charlie","Jacobite","Battle of Bannockburn","Jean","1746","Stirling","17th century"],
+    lat:56.0900, lng:-3.9300,
+    source:"bannockburnhouse.scot, Scottish Ghost Guide",
+    summary:"Bannockburn House's Jacobite history is unusually well-documented — Bonnie Prince Charlie's stay here before Falkirk is verified in historical records, and Jean's role in sheltering him is attested in contemporary accounts. Her death shortly after is also documented. The house's years of dereliction concentrated the phenomena significantly, and restoration teams reported activity throughout the building. Ghost events are available by arrangement.",
+    testimonies:[]
+  },
+  {
+    id:178, name:"Comlongon Castle", city:"Dumfries", region:"Scotland", type:"Castle", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£150pp+", priceNote:"Hotel and wedding venue — rooms from £150 · Ghost events available",
+    bookingUrl:"https://www.comlongon.com/",
+    mapsUrl:"https://maps.google.com/?q=Comlongon+Castle+Dumfries",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Comlongon_Castle.jpg/640px-Comlongon_Castle.jpg",
+    desc:"A 15th-century tower house in Dumfriesshire where Lady Marion Carruthers threw herself from the battlements in 1570 rather than be forced into a marriage she did not want. Her ghost — a green lady — has been reported on the battlements and in the tower every year since her death without break in the historical record. The castle is now a hotel and wedding venue. Marion is considered one of Scotland's most reliably documented ghosts.",
+    tags:["Lady Marion Carruthers","Green lady","1570","Battlements","Dumfriesshire","Wedding venue","Hotel","Unbroken record"],
+    lat:55.0333, lng:-3.4167,
+    source:"comlongon.com, Dumfries Ghost Guide",
+    summary:"Comlongon's green lady is remarkable for the continuity of her documentation — accounts of Marion Carruthers' apparition on the battlements span four and a half centuries without a gap in the historical record. She appears annually, most frequently around the anniversary of her death in September. The castle staff are matter-of-fact about her presence, which is treated as a feature of the property rather than a curiosity.",
+    testimonies:[]
+  },
+  {
+    id:179, name:"Brodick Castle", city:"Isle of Arran", region:"Scotland", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£13pp", priceNote:"National Trust for Scotland — members free · Adults from £13pp",
+    bookingUrl:"https://www.nts.org.uk/visit/places/brodick-castle",
+    mapsUrl:"https://maps.google.com/?q=Brodick+Castle+Isle+of+Arran",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Brodick_Castle_and_gardens.jpg/640px-Brodick_Castle_and_gardens.jpg",
+    desc:"A castle on the Isle of Arran with Viking origins and a documented haunting centred on three figures: a grey lady who died of plague and was walled up in the basement, the ghost of a former owner who hanged himself, and a mysterious white deer whose appearance is considered an omen of death in the castle. The deer apparition — a white animal that appears and vanishes in the grounds — is among Scotland's most distinctive paranormal traditions.",
+    tags:["Grey lady","Plague","White deer","Death omen","Isle of Arran","Viking origins","NTS","Suicide"],
+    lat:55.5753, lng:-5.1447,
+    source:"NTS, Isle of Arran Ghost Guide",
+    summary:"Brodick Castle's three-layered haunting reflects its history spanning from Viking settlement to Victorian occupation. The grey lady walled up during plague is the most typical account but the white deer omen is the most distinctive — a spectral white animal seen in the grounds whose appearance precedes a death in the family that owned the castle. Multiple documented family deaths have followed white deer sightings over three centuries.",
+    testimonies:[]
+  },
+  {
+    id:180, name:"The Last Drop Tavern", city:"Edinburgh", region:"Scotland", type:"Inn / Pub", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Working pub — no admission charge",
+    bookingUrl:"https://www.lastdrop.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=The+Last+Drop+Tavern+Edinburgh",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Grassmarket_Edinburgh.jpg/640px-Grassmarket_Edinburgh.jpg",
+    desc:"A pub in the Grassmarket area of Edinburgh's Old Town, named for the public executions that took place in the square outside — the gallows stood directly in front of what is now the pub. Over 100 people were publicly hanged in the Grassmarket between 1661 and 1784, including several Covenanters. The pub itself produces consistent reports of cold spots, unexplained sounds and a presence in the lower bar, with the Grassmarket outside producing apparition reports after dark.",
+    tags:["Grassmarket","Public executions","Gallows","Covenanters","Edinburgh","Old Town","Free"],
+    lat:55.9474, lng:-3.1939,
+    source:"Edinburgh Ghost Walks, Grassmarket historical records",
+    summary:"The Last Drop sits at the epicentre of Edinburgh's bloodiest public history — the Grassmarket gallows claimed hundreds of lives over more than a century, including Covenanters executed for their religious beliefs. The pub's position directly opposite the execution site gives it a specific historical connection that most Grassmarket establishments lack. Cold spots in the lower bar are reported consistently by staff and have been measured by investigators.",
+    testimonies:[]
+  },
+  {
+    id:181, name:"Gwrych Castle", city:"Abergele", region:"Wales", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£10pp", priceNote:"Gwrych Castle Preservation Trust — adults from £10pp · Ghost events available",
+    bookingUrl:"https://www.gwrychcastle.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Gwrych+Castle+Abergele",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Gwrych_Castle_-_geograph.org.uk_-_1004636.jpg/640px-Gwrych_Castle_-_geograph.org.uk_-_1004636.jpg",
+    desc:"A ruined early 19th-century Gothic castle on the North Wales coast, famous as the location for I'm A Celebrity... Get Me Out Of Here during the COVID pandemic. The ghost of Winifred Cochrane — Countess of Dundonald — who built the castle and requested to be buried in the grounds, has been reported on the battlements and in the great hall since her death in 1924. The castle's dramatic clifftop position and ruinous state create an intense investigation environment.",
+    tags:["Winifred Cochrane","Countess of Dundonald","Gothic","North Wales coast","Im A Celebrity","Ruined","Battlements"],
+    lat:53.3000, lng:-3.5833,
+    source:"gwrychcastle.co.uk, North Wales Ghost Guide",
+    summary:"Gwrych Castle's paranormal reputation predates its television fame by decades. The Countess of Dundonald's attachment to the castle she built and loved is reflected in her reported continued presence — seen on the battlements she walked in life, in the rooms she designed. The castle's partial ruination following decades of neglect created an intensity of atmosphere that investigators consistently rate highly. Restoration work is ongoing.",
+    testimonies:[]
+  },
+  {
+    id:182, name:"Raglan Castle", city:"Raglan", region:"Wales", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£8pp", priceNote:"Cadw — members free · Adults from £8pp",
+    bookingUrl:"https://cadw.gov.wales/visit/places-to-visit/raglan-castle",
+    mapsUrl:"https://maps.google.com/?q=Raglan+Castle+Monmouthshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Raglan_Castle_7.jpg/640px-Raglan_Castle_7.jpg",
+    desc:"One of the finest late medieval castles in Wales, built in the 15th century and partially demolished by Parliamentary forces after a Civil War siege in 1646. The ghost of a Royalist soldier — still defending the castle that fell after an 11-week siege — is reported in the Great Tower. A female apparition in the Fountain Court is associated with the castle's final lady of the house, who is said to have watched the demolition from the ruins.",
+    tags:["Civil War","Royalist soldier","Great Tower","Fountain Court","Cadw","15th century","Monmouthshire"],
+    lat:51.7731, lng:-2.8558,
+    source:"Cadw, Monmouthshire Ghost Guide",
+    summary:"Raglan Castle's Civil War history gives its haunting a specific military character — the Royalist soldier apparition is consistently described in period armour, defending positions in the Great Tower that were among the last to fall in the 1646 siege. The castle's partial demolition by Parliamentary order — an act of deliberate cultural destruction — is considered by investigators to have concentrated the residual energy of those who resisted.",
+    testimonies:[]
+  },
+  {
+    id:183, name:"Gwydir Castle", city:"Llanrwst", region:"Wales", type:"House", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£5pp", priceNote:"Private ownership — admission from £5pp · Holiday cottages available",
+    bookingUrl:"https://www.gwydircastle.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Gwydir+Castle+Llanrwst",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Gwydir_Castle.jpg/640px-Gwydir_Castle.jpg",
+    desc:"A Tudor mansion in the Conwy Valley, home to the Wynn family for centuries and considered one of the most haunted houses in Wales. The ghost of a young woman — believed to be a murdered servant whose remains were found bricked into a wall during restoration — is the most intense presence. The current owners describe regularly experiencing unexplained phenomena and have published accounts of specific incidents. Holiday cottages in the grounds are available for overnight investigation.",
+    tags:["Tudor","Wynn family","Murder","Bricked-up remains","Conwy Valley","Snowdonia","Holiday cottages","Owner accounts"],
+    lat:53.1333, lng:-3.7833,
+    source:"gwydircastle.co.uk, North Wales Ghost Guide",
+    summary:"Gwydir Castle is distinguished by its owners' willingness to document and discuss the paranormal phenomena they experience living there — accounts include objects moving, doors opening and closing, and the apparition of a young woman in period clothing. The discovery of bricked-up human remains during restoration provides physical corroboration for the haunting's historical basis. The castle's Tudor core is the most active area.",
+    testimonies:[]
+  },
+  {
+    id:184, name:"Kelham Hall", city:"Newark", region:"England — Midlands", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£35–£65pp", priceNote:"Ghost events from £35pp via various operators",
+    bookingUrl:"https://www.kelhamhall.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Kelham+Hall+Newark+Nottinghamshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Kelham_Hall.jpg/640px-Kelham_Hall.jpg",
+    desc:"A vast Victorian Gothic mansion in Nottinghamshire designed by George Gilbert Scott, used as a seminary, then a council headquarters, and now an event venue. The building's ecclesiastical architecture — Scott also designed St Pancras Station — gives it an extraordinary atmosphere. A monk apparition is reported in the chapel corridor, a grey lady walks the main staircase, and the cellar produces equipment responses that investigators consistently rate among the highest of any Midlands venue.",
+    tags:["Victorian Gothic","George Gilbert Scott","Monk","Grey Lady","Cellar","Seminary","Nottinghamshire","Newark"],
+    lat:53.0667, lng:-0.8833,
+    source:"kelhamhall.co.uk, Nottinghamshire Ghost Guide",
+    summary:"Kelham Hall's combination of Victorian Gothic ecclesiastical architecture and its long use as a religious seminary creates an atmosphere of unusual intensity. The building was designed by one of the greatest Gothic Revival architects and resembles a cathedral as much as a house. Investigators report that the chapel corridor and the cellar are the two strongest areas, with the monk apparition appearing consistently in the former and physical equipment responses most common in the latter.",
+    testimonies:[]
+  }  ,{
+    id:185, name:"Sutton Scarsdale Hall", city:"Chesterfield", region:"England — Midlands", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"English Heritage — free to visit exterior · Interior access limited",
+    bookingUrl:"https://www.english-heritage.org.uk/visit/places/sutton-scarsdale-hall/",
+    mapsUrl:"https://maps.google.com/?q=Sutton+Scarsdale+Hall+Chesterfield",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Sutton_Scarsdale_Hall_-_geograph.org.uk_-_332677.jpg/640px-Sutton_Scarsdale_Hall_-_geograph.org.uk_-_332677.jpg",
+    desc:"A magnificent ruined baroque mansion in Derbyshire, stripped of its interiors in the 1920s and partially demolished. What remains is a dramatic shell of 18th-century grandeur visible for miles across the Derbyshire landscape. A grey lady is reported in the roofless rooms, and the sound of music and laughter has been heard emanating from the empty shell by walkers on the surrounding footpaths — most frequently on winter evenings.",
+    tags:["Baroque ruin","Grey lady","Derbyshire","English Heritage","Music from empty rooms","18th century","Shell"],
+    lat:53.2167, lng:-1.3500,
+    source:"English Heritage, Derbyshire Ghost Guide",
+    summary:"Sutton Scarsdale's atmospheric power comes from the contrast between its architectural grandeur and its complete dereliction — ornate stonework open to the sky, empty window frames framing countryside. The grey lady apparition is reported in the former state rooms, and the phantom music accounts are unusual in that they have been reported by walkers who had no knowledge of the building's function as a great house before investigating the source.",
+    testimonies:[]
+  },
+  {
+    id:186, name:"Nocton Hall Hospital", city:"Nocton", region:"England — Midlands", type:"Hospital", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£35–£55pp", priceNote:"Ghost events via various operators · Much of the site is derelict",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Nocton+Hall+Lincolnshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Nocton_Hall.jpg/640px-Nocton_Hall.jpg",
+    desc:"A Georgian mansion in Lincolnshire converted into a military hospital during WWI and WWII, and later a USAF hospital during the Cold War. Gutted by fire in 2004, the shell now stands derelict. The combination of Georgian grandeur, military hospital history and American servicemen stationed here creates a layered haunting — apparitions in military uniform, screaming from empty wards, and equipment failure at a rate investigators describe as exceptional.",
+    tags:["Military hospital","WWI","WWII","USAF","Georgian","Derelict","Fire","Lincolnshire","Screaming"],
+    lat:53.1500, lng:-0.4333,
+    source:"Lincolnshire Ghost Guide, higgypop.com/hauntings/east-midlands",
+    summary:"Nocton Hall's military hospital history across two world wars and the Cold War creates an extraordinary concentration of human suffering in one building. The American USAF connection distinguishes it from purely British military hauntings. Investigators report the former ward areas as the most active, with screaming and moaning sounds recorded on audio equipment during silent vigils. The fire damage and subsequent dereliction have intensified rather than diminished the paranormal reports.",
+    testimonies:[]
+  },
+  {
+    id:187, name:"Southwell Workhouse", city:"Southwell", region:"England — Midlands", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£9pp", priceNote:"National Trust — members free · Adults from £9pp",
+    bookingUrl:"https://www.nationaltrust.org.uk/visit/nottinghamshire/southwell-workhouse",
+    mapsUrl:"https://maps.google.com/?q=Southwell+Workhouse+Nottinghamshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/The_Workhouse%2C_Southwell.jpg/640px-The_Workhouse%2C_Southwell.jpg",
+    desc:"The most complete surviving example of a Victorian workhouse in England, now a National Trust property presented as it appeared in the 1840s. The building's function — incarcerating the destitute poor in conditions designed to be worse than the worst available employment — has left a powerful imprint. A male apparition is reported in the men's yard, weeping is heard in the women's section, and the children's dormitory produces the most intense investigator responses.",
+    tags:["Victorian workhouse","National Trust","Poverty","Destitute","Children's dormitory","Weeping","Nottinghamshire"],
+    lat:53.0762, lng:-0.9546,
+    source:"National Trust, Nottinghamshire Ghost Guide",
+    summary:"Southwell Workhouse's paranormal significance is inseparable from its social history — as the model for the Poor Law Amendment Act of 1834, it influenced the design of workhouses across England. The deliberate harshness of its regime, designed to deter all but the desperately poor from seeking help, created conditions of misery that investigators consistently describe as still present. The children's dormitory is the most consistently active area.",
+    testimonies:[]
+  },
+  {
+    id:188, name:"City of Caves", city:"Nottingham", region:"England — Midlands", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£8pp", priceNote:"Adults from £8pp · Ghost events via third parties",
+    bookingUrl:"https://www.cityofcaves.com/",
+    mapsUrl:"https://maps.google.com/?q=City+of+Caves+Nottingham",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/City_of_Caves_entrance.jpg/640px-City_of_Caves_entrance.jpg",
+    desc:"A network of over 800 sandstone caves beneath Nottingham city centre, inhabited continuously for over a thousand years. Used variously as homes for the medieval poor, tanneries, air raid shelters and an underground pub. The medieval cave dwellings produce consistent apparition reports, and the WWII shelter section is the most paranormally active — figures in period clothing are reported among the preserved shelter furniture, and voices in 1940s accents have been captured on EVP recordings.",
+    tags:["Sandstone caves","Medieval","WWII shelter","Underground","Nottingham","1000 years","EVP","Air raid"],
+    lat:52.9500, lng:-1.1500,
+    source:"cityofcaves.com, Nottingham Ghost Walks",
+    summary:"The City of Caves is unusual in combining medieval poverty, industrial history and WWII trauma in a continuous underground environment. The EVP recordings from the shelter section — in which voices with period accents have been captured discussing wartime events — are among the most discussed audio paranormal evidence from any Midlands location. The medieval cave dwellings produce visual apparitions, the shelter section primarily audio phenomena.",
+    testimonies:[]
+  },
+  {
+    id:189, name:"Felbrigg Hall", city:"Norwich", region:"England — East", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£13pp", priceNote:"National Trust — members free · Adults from £13pp",
+    bookingUrl:"https://www.nationaltrust.org.uk/visit/norfolk/felbrigg-hall-gardens-and-estate",
+    mapsUrl:"https://maps.google.com/?q=Felbrigg+Hall+Norfolk",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Felbrigg_Hall_front.jpg/640px-Felbrigg_Hall_front.jpg",
+    desc:"A 17th-century country house in Norfolk bequeathed to the National Trust by William Windham III, who loved it so much that he reportedly still occupies it. His apparition — a bookish figure in 18th-century dress — is seen in the library he loved, still reading. The house was left to the NT in such a personal act that staff report the sense of a continued occupation, and the library in particular produces consistent cold spots and the sound of pages turning.",
+    tags:["William Windham","National Trust","Library","Norfolk","17th century","Pages turning","Bookish apparition"],
+    lat:52.9167, lng:1.2167,
+    source:"National Trust, Norfolk Ghost Guide",
+    summary:"Felbrigg's haunting is one of the gentlest in the National Trust's portfolio — a man who loved his house continuing to inhabit it in death as he did in life. William Windham III's passionate attachment to Felbrigg is documented in his own writing and correspondence. The library reports — cold spots, the sound of pages turning, a figure absorbed in reading — are consistently located in the room he spent most of his time in.",
+    testimonies:[]
+  },
+  {
+    id:190, name:"Kelvedon Hatch Secret Nuclear Bunker", city:"Brentwood", region:"England — East", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£8pp", priceNote:"Adults from £8pp · Ghost events via third parties",
+    bookingUrl:"https://www.secretnuclearbunker.com/",
+    mapsUrl:"https://maps.google.com/?q=Kelvedon+Hatch+Nuclear+Bunker+Essex",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Kelvedon_Hatch_Secret_Nuclear_Bunker.jpg/640px-Kelvedon_Hatch_Secret_Nuclear_Bunker.jpg",
+    desc:"A three-storey underground bunker in Essex designed to house 600 government and military personnel in the event of nuclear war, operational from 1953 to 1992. The deepest level — 100 feet underground — produces the most intense investigator responses. Staff apparitions in period military uniforms are reported at the operations desks, and an overwhelming sense of entrapment is felt by most investigators at the lowest level. Similar to Hack Green but with a distinct Essex atmosphere.",
+    tags:["Nuclear bunker","Cold War","Underground","Government","Military","Essex","Operations room","Entrapment"],
+    lat:51.6667, lng:0.2167,
+    source:"secretnuclearbunker.com, Essex Ghost Guide",
+    summary:"Kelvedon Hatch's atmosphere is defined by its intended purpose — a facility designed to function while the world above was destroyed. The operations room, dormitories and communications centre are all preserved intact. Investigators report that the deepest level produces a qualitatively different experience from the upper floors — a combination of physical and psychological pressure that most attribute to the depth and the weight of the facility's intended purpose.",
+    testimonies:[]
+  },
+  {
+    id:191, name:"Hinchingbrooke House", city:"Huntingdon", region:"England — East", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free–£8pp", priceNote:"Now a school — limited public access · Ghost events via local operators",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Hinchingbrooke+House+Huntingdon",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Hinchingbrooke_House.jpg/640px-Hinchingbrooke_House.jpg",
+    desc:"A former Benedictine nunnery converted into a country house and once owned by the Cromwell family — Oliver Cromwell's great-great-grandfather purchased it. Now a school. A grey nun — believed to be a former resident of the original nunnery — glides through the older sections of the building. A figure believed to be a member of the Cromwell family is reported in the great hall, and a servant who hanged himself in the attics is the third documented presence.",
+    tags:["Benedictine nunnery","Grey nun","Cromwell family","School","Huntingdon","Cambridgeshire","Three ghosts"],
+    lat:52.3333, lng:-0.1833,
+    source:"Cambridgeshire Ghost Guide, Hinchingbrooke School records",
+    summary:"Hinchingbrooke's three-layered haunting reflects its distinct historical phases — monastic, aristocratic and institutional. The grey nun predates the Cromwell connection by centuries, while the Cromwell family figure is associated with the house's period of greatest national significance. The servant's suicide in the attics is documented in household records. The building's current use as a school means access is limited, making ghost events the primary investigation opportunity.",
+    testimonies:[]
+  },
+  {
+    id:192, name:"Croxteth Hall", city:"Liverpool", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Liverpool City Council — grounds free · Hall from £5pp",
+    bookingUrl:"https://www.croxteth.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Croxteth+Hall+Liverpool",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Croxteth_Hall.jpg/640px-Croxteth_Hall.jpg",
+    desc:"The ancestral home of the Molyneux family, Earls of Sefton, set in 500 acres on the outskirts of Liverpool. The last Earl died without an heir in 1972 and bequeathed the estate to Liverpool. Lady Sefton is the primary apparition — seen in the family rooms she occupied in life, particularly the morning room and on the main staircase. Staff report a strong sense of presence in the locked family quarters during evening closure.",
+    tags:["Molyneux family","Earls of Sefton","Lady Sefton","Morning room","Liverpool","Victorian","Free grounds"],
+    lat:53.4333, lng:-2.9000,
+    source:"Croxteth Hall, Liverpool Ghost Guide",
+    summary:"Croxteth Hall's haunting has an elegiac quality — a family home given up involuntarily, its last occupant dying without heirs, its contents and rooms preserved by the city but no longer lived in. Lady Sefton's apparition in the rooms she used daily reflects the pattern of attachment-based hauntings documented across many aristocratic houses. Staff accounts of presence during evening closure are consistent and matter-of-fact.",
+    testimonies:[]
+  },
+  {
+    id:193, name:"Manchester Town Hall", city:"Manchester", region:"England — North", type:"Other", scare:2,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Currently closed for restoration — tours when reopened",
+    bookingUrl:"https://www.manchester.gov.uk/",
+    mapsUrl:"https://maps.google.com/?q=Manchester+Town+Hall",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Manchester_Town_Hall_1.jpg/640px-Manchester_Town_Hall_1.jpg",
+    desc:"Alfred Waterhouse's magnificent Gothic Revival town hall, completed in 1877 and considered one of the finest Victorian public buildings in England. A former mayor — believed to be Joseph Heron, who served in the 1870s — is reported in the Great Hall and on the main staircase. Council workers on night shifts have reported footsteps in empty corridors and the sense of a formal, authoritative presence moving through the building after hours.",
+    tags:["Alfred Waterhouse","Gothic Revival","Victorian","Former mayor","Great Hall","Manchester","Night shift","Restoration"],
+    lat:53.4793, lng:-2.2452,
+    source:"Manchester City Council, Manchester Ghost Walks",
+    summary:"Manchester Town Hall's paranormal reports are modest but consistent — the former mayor apparition is concentrated in the public ceremonial spaces rather than the administrative areas, suggesting a connection to the civic function of the building rather than its bureaucratic operation. The council workers' accounts carry the credibility of people with nothing to gain from reporting their experiences. The building's current restoration closure has temporarily suspended investigation access.",
+    testimonies:[]
+  },
+  {
+    id:194, name:"Wardley Hall", city:"Worsley", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Private", priceNote:"Residence of the Bishop of Salford — not generally open to the public",
+    bookingUrl:null,
+    mapsUrl:"https://maps.google.com/?q=Wardley+Hall+Worsley+Manchester",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Wardley_Hall%2C_Worsley.jpg/640px-Wardley_Hall%2C_Worsley.jpg",
+    desc:"A 16th-century moated manor house in Greater Manchester, official residence of the Bishop of Salford. The hall is famous for the Skull of Wardley Hall — believed to be that of Roger Downes, killed in a duel in 1676, or alternatively that of the martyred Catholic priest Ambrose Barlow. Whenever the skull has been removed from the hall, disaster has reportedly followed — floods, storms and misfortune — until it was returned. The skull sits in a niche above the staircase.",
+    tags:["Skull of Wardley Hall","Roger Downes","Ambrose Barlow","Moated manor","Bishop of Salford","Cursed skull","16th century"],
+    lat:53.5000, lng:-2.3833,
+    source:"Diocese of Salford, Lancashire historic records",
+    summary:"Wardley Hall is unusual in that its primary paranormal feature is a physical object — the skull — rather than an apparition. The documented history of misfortune following the skull's removal is attested in estate records spanning several centuries. Whether the skull belongs to Roger Downes or Ambrose Barlow remains disputed, but DNA testing has confirmed it to be that of a man in his 30s or 40s killed by a blow to the head. The hall is not open to the public but visible from the road.",
+    testimonies:[]
+  },
+  {
+    id:195, name:"East Riddlesden Hall", city:"Keighley", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£9pp", priceNote:"National Trust — members free · Adults from £9pp",
+    bookingUrl:"https://www.nationaltrust.org.uk/visit/yorkshire/east-riddlesden-hall",
+    mapsUrl:"https://maps.google.com/?q=East+Riddlesden+Hall+Keighley",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/East_Riddlesden_Hall.jpg/640px-East_Riddlesden_Hall.jpg",
+    desc:"A 17th-century manor house near Keighley, West Yorkshire, with a haunting featuring one of England's most pitiable ghost stories. The Grey Lady is believed to be a woman who was walled up alive by her husband after she was found with her lover — the lover was allegedly bricked into the opposite wall, so the two face each other in permanent separation for eternity. A Scottish ghost — a merchant cheated by a former owner — also haunts the barn.",
+    tags:["Grey Lady","Walled up alive","Scottish merchant","Barn","Keighley","National Trust","West Yorkshire","Lover"],
+    lat:53.8667, lng:-1.8833,
+    source:"National Trust, Yorkshire Ghost Guide",
+    summary:"East Riddlesden's grey lady story is one of Yorkshire's most dramatic haunting accounts — the deliberate entombment of two lovers in opposite walls is documented in household tradition stretching back to the 17th century. The grey lady apparition is reported throughout the house, most frequently near the fireplace in the great hall. The Scottish merchant ghost in the barn is a separately documented and distinct presence from a different period of the house's history.",
+    testimonies:[]
+  },
+  {
+    id:196, name:"Arnos Vale Cemetery", city:"Bristol", region:"England — South", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Bristol City Council — free admission · Ghost tours available",
+    bookingUrl:"https://arnosvale.org.uk/",
+    mamsUrl:"https://maps.google.com/?q=Arnos+Vale+Cemetery+Bristol",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Arnos_Vale_Cemetery.jpg/640px-Arnos_Vale_Cemetery.jpg",
+    desc:"A magnificent Victorian garden cemetery in Bristol, opened in 1837 and containing Grade II listed buildings including a Greek Revival mortuary chapel. Fallen into disrepair in the late 20th century and subsequently restored, the cemetery contains the graves of figures including Raja Rammohun Roy, the Indian social reformer. A white lady is reported near the older section of the cemetery, and investigators consistently report the strongest phenomena near the Egyptian-style catacombs.",
+    tags:["Victorian cemetery","Garden cemetery","White lady","Greek Revival","Bristol","Raja Rammohun Roy","Catacombs","Free"],
+    lat:51.4333, lng:-2.5500,
+    source:"arnosvale.org.uk, Bristol Ghost Guide",
+    summary:"Arnos Vale combines Victorian funerary grandeur with a history of neglect and restoration that has preserved its atmospheric intensity. The catacombs produce the most consistently intense investigator responses, with a physical sense of pressure and cold spots measured by multiple teams. The white lady apparition is reported in the older section independently by visitors with no prior knowledge of the haunting.",
+    testimonies:[]
+  },
+  {
+    id:197, name:"Berkeley Castle", city:"Berkeley", region:"England — South", type:"Castle", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£13pp", priceNote:"Berkeley Castle — adults from £13pp",
+    bookingUrl:"https://www.berkeley-castle.com/",
+    mapsUrl:"https://maps.google.com/?q=Berkeley+Castle+Gloucestershire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Berkeley_Castle_from_south.jpg/640px-Berkeley_Castle_from_south.jpg",
+    desc:"A Norman castle in Gloucestershire that has been home to the Berkeley family for 900 years — the only castle in England continuously inhabited by the same family since the 12th century. The murder room where King Edward II was killed in 1327 is preserved exactly as it was. His screams are reported to echo in the room and through the adjacent corridors. A grey lady wanders the lower floors, and the dungeon produces overwhelming sensations of despair.",
+    tags:["Edward II","Murder room","Norman","900 years","Berkeley family","Dungeon","Screaming","Gloucestershire"],
+    lat:51.6833, lng:-2.4667,
+    source:"berkeley-castle.com, Gloucestershire Ghost Guide",
+    summary:"Berkeley Castle's murder room is one of the most historically significant and atmospherically intense rooms in England — the place where a reigning king was murdered in 1327 in circumstances that contemporary chroniclers found too horrific to describe fully. The room has been preserved without modernisation. Edward II's screams are reported not just inside the murder room but echoing through the adjacent keep. The Berkeley family's 900-year continuous occupation gives the haunting an unbroken chain of witness accounts.",
+    testimonies:[]
+  },
+  {
+    id:198, name:"Chavenage Manor", city:"Tetbury", region:"England — South", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£10pp", priceNote:"Private ownership — limited opening days · Ghost events available",
+    bookingUrl:"https://www.chavenage.com/",
+    mapsUrl:"https://maps.google.com/?q=Chavenage+Manor+Tetbury+Gloucestershire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Chavenage_House.jpg/640px-Chavenage_House.jpg",
+    desc:"An Elizabethan manor house in the Cotswolds used frequently as a film and television location — Poldark, Lark Rise to Candleford and many others have been filmed here. The ghost of Colonel Nathaniel Stephens, who voted for the execution of Charles I and subsequently died of guilt and remorse, is the most reported presence. He is said to leave the house at night in a black carriage driven by a headless coachman, mirroring a curse placed on him by his daughter.",
+    tags:["Colonel Stephens","Charles I","Headless coachman","Black carriage","Cotswolds","Elizabethan","Film location","Curse"],
+    lat:51.6333, lng:-2.1667,
+    source:"chavenage.com, Gloucestershire Ghost Guide",
+    summary:"Chavenage's Colonel Stephens haunting has a precise historical anchor — his vote for Charles I's execution is documented in parliamentary records, and his daughter's curse is attested in family tradition. The black carriage and headless coachman are among the most dramatically specific apparition accounts in the South West. The manor's film career means it's one of the most visually recognised haunted locations in England.",
+    testimonies:[]
+  },
+  {
+    id:199, name:"Balgonie Castle", city:"Markinch", region:"Scotland", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£5pp", priceNote:"Private ownership — admission from £5pp · Ghost events available",
+    bookingUrl:"https://www.balgonie-castle.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Balgonie+Castle+Fife",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Balgonie_Castle.jpg/640px-Balgonie_Castle.jpg",
+    desc:"A 14th-century castle in Fife, one of the oldest inhabited castles in Scotland, still occupied by the Laird of Balgonie and his family. The Green Jean apparition — a 17th-century girl who died tragically young — is the primary presence, reported in the great tower. A soldier from the Battle of Sheriffmuir (1715) appears in the courtyard still wearing his battle wounds. The castle's continued private habitation gives investigator accounts an unusual authenticity.",
+    tags:["Green Jean","Sheriffmuir soldier","Fife","14th century","Inhabited","Private","Scotland","Laird"],
+    lat:56.2000, lng:-3.1000,
+    source:"balgonie-castle.co.uk, Fife Ghost Guide",
+    summary:"Balgonie's value as an investigation location comes partly from its continued occupation — the Laird and his family live here and document their experiences, providing a continuous chain of contemporary witness accounts that purely tourist-facing venues cannot offer. Green Jean's appearances are reported most frequently in the great tower, and the soldier's battle wounds are described with period-specific accuracy by independent witnesses.",
+    testimonies:[]
+  },
+  {
+    id:200, name:"Glasgow Necropolis", city:"Glasgow", region:"Scotland", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Free admission — open daily",
+    bookingUrl:"https://www.glasgownecropolis.org/",
+    mapsUrl:"https://maps.google.com/?q=Glasgow+Necropolis",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Glasgow_Necropolis_01.jpg/640px-Glasgow_Necropolis_01.jpg",
+    desc:"A Victorian garden cemetery on a hill overlooking Glasgow Cathedral, containing over 50,000 burials beneath 3,500 monuments. Opened in 1832 and modelled on Père Lachaise in Paris. A figure in Victorian mourning dress is reported near the older monuments in the eastern section, and the area around the John Knox monument at the summit produces consistent reports of cold spots and an oppressive atmospheric presence, particularly at dusk.",
+    tags:["Victorian cemetery","50000 burials","Glasgow","John Knox monument","Mourning figure","Dusk","Free","Garden cemetery"],
+    lat:55.8617, lng:-4.2367,
+    source:"glasgownecropolis.org, Glasgow Ghost Guide",
+    summary:"The Glasgow Necropolis offers one of Scotland's finest Victorian funerary landscapes — a hillside forest of Gothic monuments, mausoleums and obelisks overlooking the city. The Victorian mourning figure is reported independently by visitors in the eastern section, while the John Knox monument summit area produces the most consistent equipment responses. The combination of architectural grandeur and genuine historical significance makes this one of Scotland's most rewarding free haunted locations.",
+    testimonies:[]
+  },
+  {
+    id:201, name:"Charleville Castle", city:"Tullamore", region:"Ireland", type:"Castle", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£30pp", priceNote:"Ghost events from €30pp · Charleville Castle Heritage Trust",
+    bookingUrl:"https://charlevillecastle.com/",
+    mapsUrl:"https://maps.google.com/?q=Charleville+Castle+Tullamore+Offaly",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Charleville_Castle.jpg/640px-Charleville_Castle.jpg",
+    desc:"Ireland's finest Gothic Revival castle, completed in 1812 by Charles William Bury, an alleged occultist and member of the Hellfire Club. The ghost of Harriet, an eight-year-old girl who fell from the banisters and died in 1861, is the most frequently reported presence — heard singing and seen on the main staircase. Dark shadows, poltergeist activity and the sound of children playing in empty rooms are all consistently reported throughout the castle.",
+    tags:["Harriet","Child ghost","Gothic Revival","Hellfire Club","Tullamore","Offaly","Ireland","Singing child"],
+    lat:53.2667, lng:-7.4833,
+    source:"charlevillecastle.com, Irish Ghost Guide",
+    summary:"Charleville Castle's paranormal reputation is one of the strongest in Ireland. Little Harriet's singing has been reported on the main staircase by independent visitors spanning more than a century, and the accounts are consistent in their description of a child's voice rather than an adult's. The castle's occultist founder adds a deliberate supernatural dimension to its history. Ghost events are well-organised and the castle is an active heritage preservation project.",
+    testimonies:[]
+  },
+  {
+    id:202, name:"Clapham Woods", city:"Clapham", region:"England — South", type:"Woodland", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Public woodland — free access",
+    bookingUrl:null,
+    mapsUrl:"https://maps.google.com/?q=Clapham+Woods+West+Sussex",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Clapham_village%2C_West_Sussex.jpg/640px-Clapham_village%2C_West_Sussex.jpg",
+    desc:"A stretch of ancient woodland in West Sussex that has one of the most disturbing paranormal reputations of any woodland in England. Numerous people have disappeared in the woods over the decades. Black Alien — a humanoid dark figure — has been reported by independent witnesses since the 1960s. Animals have been found dead without apparent cause. A local vicar who investigated the woods disappeared in 1978 and was found dead months later under unexplained circumstances.",
+    tags:["Black Alien","Disappearances","Dark figure","West Sussex","Ancient woodland","Vicar disappeared","Animal deaths","1978"],
+    lat:50.8667, lng:-0.4333,
+    source:"Sussex Ghost Guide, Fortean Times Clapham Woods investigations",
+    summary:"Clapham Woods is one of England's most seriously investigated paranormal locations — the combination of documented disappearances, animal deaths, independent humanoid figure reports and a vicar's mysterious death makes it exceptional even by British standards. The Black Alien entity has been reported by witnesses across six decades. The woods are free and publicly accessible, though investigators are advised to go in groups and inform someone of their plans.",
+    testimonies:[]
+  },
+  {
+    id:203, name:"Bisham Woods", city:"Bisham", region:"England — South", type:"Woodland", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"National Trust — free access to woodland",
+    bookingUrl:"https://www.nationaltrust.org.uk/",
+    mapsUrl:"https://maps.google.com/?q=Bisham+Woods+Berkshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Bisham_Woods.jpg/640px-Bisham_Woods.jpg",
+    desc:"Ancient woodland above the Thames at Bisham in Berkshire, with a haunting centred on Lady Hoby — a Elizabethan noblewoman who allegedly beat her son to death for blotting his copybook, and was subsequently haunted by his ghost. She is reported walking the woods wringing her hands, preceded by a cold mist. The ghost of the child she killed is seen near the path towards the river, and independent witnesses have reported both apparitions without prior knowledge of the legend.",
+    tags:["Lady Hoby","Elizabethan","Child murder","Wringing hands","Thames","Berkshire","National Trust","Ancient woodland"],
+    lat:51.5500, lng:-0.8667,
+    source:"National Trust, Berkshire Ghost Guide",
+    summary:"Bisham Woods' haunting has a specific historical anchor — Lady Hoby is a documented Elizabethan figure and the story of her son's death, while not proven, is attested in contemporary sources. The wringing hands apparition is among the most distinctive visual accounts of any English woodland ghost, and has been reported independently by walkers with no prior knowledge of the legend. The riverside woodland setting at dusk creates an atmosphere of genuine intensity.",
+    testimonies:[]
+  },
+  {
+    id:204, name:"Tully Castle", city:"Enniskillen", region:"Northern Ireland", type:"Castle", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Historic Environment Division NI — free access",
+    bookingUrl:"https://www.communities-ni.gov.uk/",
+    mapsUrl:"https://maps.google.com/?q=Tully+Castle+Fermanagh",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Tully_Castle%2C_County_Fermanagh.jpg/640px-Tully_Castle%2C_County_Fermanagh.jpg",
+    desc:"A ruined Scottish Plantation castle on the shores of Lower Lough Erne in County Fermanagh, scene of a massacre at Christmas 1641 when Rory Maguire and his forces killed the castle's defenders — Sir William Cole's men — and took 15 women and children hostage, most of whom subsequently died. The site produces overwhelming reports of grief and distress from investigators, and weeping has been recorded near the castle walls at night.",
+    tags:["1641 massacre","Plantation castle","Lough Erne","Fermanagh","Northern Ireland","Rory Maguire","Weeping","Christmas massacre"],
+    lat:54.4167, lng:-7.8333,
+    source:"Historic Environment Division NI, Fermanagh Ghost Guide",
+    summary:"Tully Castle's 1641 Christmas massacre is historically documented in detail — the killing of the garrison and the fate of the women and children is recorded in contemporary sources. The site's lakeside isolation and ruinous state create an atmosphere of genuine melancholy. The weeping recorded near the castle walls has been captured on audio equipment by investigators operating independently on separate occasions. Free to visit as an open monument.",
+    testimonies:[]
+  }  ,{
+    id:205, name:"The Flask", city:"London", region:"England — London", type:"Inn / Pub", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Public house — no admission charge",
+    bookingUrl:"https://www.theflaskhampstead.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=The+Flask+Hampstead+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/The_Flask_Hampstead.jpg/640px-The_Flask_Hampstead.jpg",
+    desc:"A historic pub on Hampstead Heath dating from 1663, frequented by William Hogarth, Dick Turpin and Karl Marx. The ghost of a Spanish barmaid who was murdered in the cellar is the most consistently reported presence — seen behind the bar and heard crying in the cellar. A highwayman connected to Dick Turpin is also reported in the upper rooms. The pub sits on the edge of the Heath, which has its own substantial paranormal history.",
+    tags:["Hampstead","Cellar murder","Spanish barmaid","Dick Turpin","Hogarth","1663","Heath","Inn"],
+    lat:51.5573, lng:-0.1776,
+    source:"Hampstead Ghost Walks, London Pub History",
+    summary:"The Flask's paranormal history reflects its three and a half centuries as one of London's best-known pubs. The Spanish barmaid murder is documented in 18th-century records. Her apparition is reported independently by staff and customers, consistently located at the bar and in the cellar. The pub's proximity to Hampstead Heath — itself a location of multiple ghost accounts — gives the surrounding area an unusual atmospheric density.",
+    testimonies:[]
+  },
+  {
+    id:206, name:"St Pancras Railway Station", city:"London", region:"England — London", type:"Other", scare:2,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Public railway station — no admission charge",
+    bookingUrl:"https://www.stpancras.com/",
+    mapsUrl:"https://maps.google.com/?q=St+Pancras+Station+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/St_Pancras_railway_station_2012.jpg/640px-St_Pancras_railway_station_2012.jpg",
+    desc:"The magnificent Gothic Revival terminus opened in 1868, built on the site of a medieval plague pit and former St Pancras burial ground — thousands of bodies were disturbed during construction, causing public scandal. A Victorian gentleman is reported on the upper levels of the station, and a woman in period dress has been seen near the champagne bar that occupies the former hotel space. The Eurostar platforms below produce consistent cold spot reports from staff.",
+    tags:["Gothic Revival","Plague pit","Victorian gentleman","Eurostar","Medieval burial","Gilbert Scott","King's Cross"],
+    lat:51.5320, lng:-0.1233,
+    source:"Network Rail heritage records, London Ghost Guide",
+    summary:"St Pancras sits on one of London's most disturbed burial grounds — the medieval plague pit and the later St Pancras cemetery whose graves were moved during construction generated public outrage in the Victorian press. The disturbance of so many remains is considered a significant factor in the station's paranormal activity. The upper hotel levels, now luxury accommodation, produce the most consistent apparition reports.",
+    testimonies:[]
+  },
+  {
+    id:207, name:"West Norwood Cemetery", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Free public access — catacombs tours available",
+    bookingUrl:"https://www.westnorwoodcemetery.com/",
+    mapsUrl:"https://maps.google.com/?q=West+Norwood+Cemetery+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/West_Norwood_Cemetery_Greek_chapel.jpg/640px-West_Norwood_Cemetery_Greek_chapel.jpg",
+    desc:"A Grade II listed Victorian garden cemetery in South London, opened in 1837, containing the graves of Sir Henry Tate, Mrs Beeton and dozens of other Victorian luminaries. The Greek Orthodox chapel and the extensive catacombs beneath are the primary focus of paranormal investigation. A shrouded figure is reported near the older section of the catacombs, and investigators consistently note equipment failure in the sealed lower chambers.",
+    tags:["Victorian cemetery","Catacombs","South London","Greek chapel","Shrouded figure","Sir Henry Tate","Mrs Beeton","Free"],
+    lat:51.4258, lng:-0.1013,
+    source:"West Norwood Cemetery Trust, London Ghost Guide",
+    summary:"West Norwood's catacombs are among the most extensive surviving Victorian underground burial chambers in London. The shrouded figure reports are concentrated in the older sections of the catacomb network. Equipment failure — particularly battery drain — is reported by investigators at a rate they consistently describe as exceptional compared to other London locations. Free to visit during daylight hours.",
+    testimonies:[]
+  },
+  {
+    id:208, name:"Lyceum Theatre", city:"London", region:"England — London", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"From £20pp", priceNote:"West End theatre — ticket prices vary · Ghost tours via London Ghost Walks",
+    bookingUrl:"https://www.lwtheatres.co.uk/theatres/lyceum/",
+    mapsUrl:"https://maps.google.com/?q=Lyceum+Theatre+London",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Lyceum_Theatre%2C_London.jpg/640px-Lyceum_Theatre%2C_London.jpg",
+    desc:"A West End theatre on the Strand with a history stretching back to 1771. Henry Irving — the first actor to be knighted — managed the Lyceum for 24 years and Bram Stoker worked as his business manager here while writing Dracula. Irving's ghost is reported in the upper circle and backstage areas. A headless figure in the basement — one of London's older ghost accounts — has been reported since the 19th century.",
+    tags:["Henry Irving","Bram Stoker","Dracula","Headless figure","West End","Strand","Actor ghost","Victorian"],
+    lat:51.5116, lng:-0.1199,
+    source:"Lyceum Theatre history, London Theatre Ghost Guide",
+    summary:"The Lyceum's Stoker-Irving connection gives it a unique place in British paranormal and literary history — the man who wrote Dracula worked here for 27 years alongside the actor whose intense charisma allegedly inspired the Count. Irving's ghost is reported in the same areas he habitually occupied in life. The headless figure in the basement is one of London's most historically documented theatrical apparitions.",
+    testimonies:[]
+  },
+  {
+    id:209, name:"Mains Hall", city:"Poulton-le-Fylde", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£80pp+", priceNote:"Hotel and wedding venue — rooms from £80 · Ghost events available",
+    bookingUrl:"https://www.mainshall.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Mains+Hall+Poulton-le-Fylde+Lancashire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Mains_Hall%2C_Poulton-le-Fylde.jpg/640px-Mains_Hall%2C_Poulton-le-Fylde.jpg",
+    desc:"A 16th-century manor house in Lancashire, once home to the Hesketh family and now a boutique hotel. The ghost of a grey lady — believed to be a former servant who fell from an upper window — haunts the staircase and upper corridors. A monk is reported in the grounds, consistent with the hall's connections to the nearby Cockersand Abbey. The building's Tudor core produces the strongest investigator responses.",
+    tags:["Grey lady","Monk","Tudor","Hesketh family","Lancashire","Cockersand Abbey","Boutique hotel","Staircase"],
+    lat:53.8500, lng:-2.9833,
+    source:"mainshall.co.uk, Lancashire Ghost Guide",
+    summary:"Mains Hall's dual haunting — the grey lady servant and the monastic figure in the grounds — reflects its twin history as aristocratic residence and location connected to medieval religious life. The Tudor core of the building is consistently identified by investigators as the most active section. The hotel's continued operation means that staff accounts provide an ongoing source of independent reports.",
+    testimonies:[]
+  },
+  {
+    id:210, name:"Norton Priory", city:"Runcorn", region:"England — North", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£7pp", priceNote:"Norton Priory Museum Trust — adults from £7pp",
+    bookingUrl:"https://www.nortonpriory.org/",
+    mapsUrl:"https://maps.google.com/?q=Norton+Priory+Runcorn+Cheshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Norton_Priory_Museum.jpg/640px-Norton_Priory_Museum.jpg",
+    desc:"The remains of a 12th-century Augustinian priory in Cheshire, dissolved by Henry VIII in 1536, with extensive excavated remains and a museum. The ghost of a white monk is reported in the undercroft and among the stone foundations — seen by visitors who are unaware of the priory's monastic history. A white lady is also reported near the walled garden. The site produced significant archaeological finds during excavation, including a remarkable medieval mosaic.",
+    tags:["Augustinian","White monk","Undercroft","Henry VIII","Dissolution","Cheshire","Runcorn","White lady"],
+    lat:53.3500, lng:-2.7167,
+    source:"Norton Priory Museum Trust, Cheshire Ghost Guide",
+    summary:"Norton Priory's white monk apparition is notable for being reported by visitors without prior knowledge of the site's monastic function — those who encounter the figure in the undercroft later discover the medieval context that explains what they saw. The undercroft, which is the best-preserved medieval structure on the site, is consistently identified as the most active area. The site's extensive archaeological history adds physical depth to its paranormal atmosphere.",
+    testimonies:[]
+  },
+  {
+    id:211, name:"Royal Exchange Theatre", city:"Manchester", region:"England — North", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"From £10pp", priceNote:"Theatre tickets from £10pp · Ghost events occasionally available",
+    bookingUrl:"https://www.royalexchange.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Royal+Exchange+Theatre+Manchester",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Royal_Exchange_Manchester.jpg/640px-Royal_Exchange_Manchester.jpg",
+    desc:"A unique theatre-in-the-round housed inside the Great Hall of Manchester's Victorian Royal Exchange, itself a vast and magnificent cotton trading hall. The theatre module — a space capsule suspended in the hall — is built inside one of the largest rooms in the world. A Victorian cotton merchant is reported in the hall's upper gallery, and the basement areas of the exchange produce consistent cold spot reports from theatre staff.",
+    tags:["Victorian cotton exchange","Theatre in the round","Cotton merchant","Manchester","Great Hall","Space capsule","Gallery"],
+    lat:53.4832, lng:-2.2420,
+    source:"Royal Exchange Theatre, Manchester Ghost Walks",
+    summary:"The Royal Exchange's paranormal reports are unusual in their setting — a modern theatre suspended within a Victorian industrial cathedral. The Victorian cotton merchant apparition in the upper gallery is reported by staff who work late in the building. The basement areas of the exchange, which predate the theatre conversion, produce the most consistent cold spot measurements. The building's IRA bomb damage in 1996 and subsequent restoration is considered by investigators to have intensified its atmospheric properties.",
+    testimonies:[]
+  },
+  {
+    id:212, name:"Tatton Old Hall", city:"Knutsford", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£5pp", priceNote:"National Trust — members free · Adults from £5pp",
+    bookingUrl:"https://www.nationaltrust.org.uk/visit/cheshire-greater-manchester/tatton-park",
+    mapsUrl:"https://maps.google.com/?q=Tatton+Old+Hall+Knutsford+Cheshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Tatton_Old_Hall.jpg/640px-Tatton_Old_Hall.jpg",
+    desc:"A medieval timber-framed hall on the Tatton Park estate in Cheshire, preserved within the much larger Victorian mansion grounds. The original hall dates from the 15th century and is presented as it appeared in different historical periods. A priest who died during the persecution of Catholics is reported in the great hall, and a medieval woman seen spinning near the original hearth is one of Cheshire's most gently described apparitions.",
+    tags:["Medieval","Timber-framed","Priest","Spinning woman","Cheshire","National Trust","Tatton Park","15th century"],
+    lat:53.3333, lng:-2.3667,
+    source:"National Trust, Cheshire Ghost Guide",
+    summary:"Tatton Old Hall's surviving medieval fabric — rare in Cheshire — creates an investigation environment with genuine historical depth. The priest apparition reflects the real danger of Catholic practice in the region during the Reformation, and documented persecution in this area gives the account historical grounding. The spinning woman near the hearth is one of the most placid apparition accounts in the North West — a figure going about domestic tasks, apparently unaware of observers.",
+    testimonies:[]
+  },
+  {
+    id:213, name:"Paper Hall", city:"Bradford", region:"England — North", type:"House", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£35pp", priceNote:"Ghost events via various operators",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Paper+Hall+Bradford",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Paper_Hall_Bradford.jpg/640px-Paper_Hall_Bradford.jpg",
+    desc:"A late 16th-century merchant's house in Bradford, one of the oldest surviving domestic buildings in West Yorkshire. Originally home to wealthy wool merchants, the building has a documented history of paranormal activity stretching back centuries. A grey lady is reported on the main staircase, a child's laughter is heard in empty rooms, and investigators consistently report one of the highest rates of trigger object activation in the Yorkshire region.",
+    tags:["Merchant house","Grey lady","Child laughter","16th century","Bradford","Wool trade","West Yorkshire","Trigger objects"],
+    lat:53.7952, lng:-1.7528,
+    source:"Bradford Ghost Guide, West Yorkshire Paranormal",
+    summary:"Paper Hall's status as one of Bradford's oldest surviving buildings gives its haunting a corresponding historical depth. The grey lady on the staircase is the most consistently reported apparition, described by independent investigators across multiple decades. The child's laughter — heard in rooms where no children are present — is reported by investigators from different companies operating on separate nights, which gives it particular evidential weight.",
+    testimonies:[]
+  },
+  {
+    id:214, name:"Ripon Union Workhouse", city:"Ripon", region:"England — North", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Ripon Workhouse Museum — free admission",
+    bookingUrl:"https://www.riponmuseums.co.uk/workhouse",
+    mapsUrl:"https://maps.google.com/?q=Ripon+Workhouse+Museum",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Ripon_Workhouse.jpg/640px-Ripon_Workhouse.jpg",
+    desc:"A Victorian workhouse in Ripon, North Yorkshire, now operated as a museum exploring the lives of the poor who were forced to seek refuge here. The building's function — deliberately harsh conditions to deter all but the most desperate from seeking help — has left a palpable imprint. A male figure in Victorian dress is reported in the men's quarters, and weeping is heard from the women's section. Children's voices have been recorded in the dormitory wing.",
+    tags:["Victorian workhouse","Museum","Male apparition","Weeping","Children's voices","Ripon","North Yorkshire","Free"],
+    lat:54.1352, lng:-1.5232,
+    source:"Ripon Museums Trust, North Yorkshire Ghost Guide",
+    summary:"Ripon Workhouse's preserved state — including the original sleeping boxes, dining hall and segregation yards — creates a visceral connection to the suffering of its former inmates. The children's voices recorded in the dormitory wing are the most frequently cited evidence from this location, captured by investigators on audio equipment during otherwise silent vigils. The weeping from the women's section is reported independently by museum staff working alone.",
+    testimonies:[]
+  },
+  {
+    id:215, name:"Annesley Hall", city:"Annesley", region:"England — Midlands", type:"House", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£35–£55pp", priceNote:"Ghost events via various operators · Derelict building — no public daytime access",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Annesley+Hall+Nottinghamshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Annesley_Hall%2C_Nottinghamshire.jpg/640px-Annesley_Hall%2C_Annesley%2C_Nottinghamshire.jpg",
+    desc:"A derelict 17th-century hall in Nottinghamshire, once connected to Lord Byron — his first and unrequited love Mary Chaworth lived here. Now a roofless ruin in private ownership. The ghost of Mary Chaworth is reported in the ruined rooms, and Byron's own apparition has been seen in the grounds, apparently still visiting the house of his first love. A dark oppressive entity in the cellars is reported by investigators as distinct from the romantic apparitions above.",
+    tags:["Lord Byron","Mary Chaworth","Derelict","Nottinghamshire","Unrequited love","Cellars","Dark entity","Ruin"],
+    lat:53.0500, lng:-1.2167,
+    source:"Nottinghamshire Ghost Guide, Byron Society records",
+    summary:"Annesley Hall's haunting has a literary dimension — Byron's unrequited love for Mary Chaworth, who rejected him for another man, is documented in his own poetry and letters. Both figures are reported in the ruins, apparently replaying an emotional connection that defined Byron's early life. The cellar entity is considered by investigators to be a separate, darker presence unconnected to the romantic history above, and produces more intense phenomena.",
+    testimonies:[]
+  },
+  {
+    id:216, name:"Elvaston Castle", city:"Derby", region:"England — Midlands", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Derbyshire County Council — grounds free · Castle limited access",
+    bookingUrl:"https://www.derbyshire.gov.uk/elvastoncastle",
+    mapsUrl:"https://maps.google.com/?q=Elvaston+Castle+Derby",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Elvaston_Castle%2C_Derbyshire.jpg/640px-Elvaston_Castle%2C_Derbyshire.jpg",
+    desc:"A Gothic Revival castle and country park in Derbyshire, largely built in the early 19th century. The castle's most famous story involves the 4th Earl of Harrington who fell in love with a circus performer and hid her in the castle for years — forbidden from marrying her by his family. The ghost of Maria Foote, the actress he eventually married, is reported in the castle's older rooms. An aggressive presence in the cellar produces physical investigator responses.",
+    tags:["Circus performer","Maria Foote","4th Earl of Harrington","Gothic Revival","Derbyshire","Country park","Cellar","Free grounds"],
+    lat:52.8833, lng:-1.4167,
+    source:"Derbyshire County Council, Derby Ghost Guide",
+    summary:"Elvaston Castle's love story is one of the more romantically unusual in English haunted house history — the Earl who hid a circus performer from his disapproving family for years before eventually marrying her. Maria Foote's apparition is reported in the rooms she would have occupied during her years of concealment. The cellar presence is reported as entirely distinct from the romantic haunting above and produces physical phenomena including pushing and temperature extremes.",
+    testimonies:[]
+  },
+  {
+    id:217, name:"Culross Palace", city:"Culross", region:"Scotland", type:"House", scare:2,
+    rating:0, reviews:0, featured:false,
+    price:"£11pp", priceNote:"National Trust for Scotland — members free · Adults from £11pp",
+    bookingUrl:"https://www.nts.org.uk/visit/places/culross-palace",
+    mapsUrl:"https://maps.google.com/?q=Culross+Palace+Fife",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Culross_Palace.jpg/640px-Culross_Palace.jpg",
+    desc:"A remarkably preserved early 17th-century merchant's house in the ancient royal burgh of Culross, Fife — one of Scotland's most complete surviving examples of a pre-industrial Scottish town. The ghost of a former merchant owner is reported in the painted gallery, absorbed in examining account books. The ochre-painted exterior and period interiors create an atmosphere of extraordinary time-depth. The surrounding burgh also produces apparition reports of figures in period dress.",
+    tags:["Merchant house","Painted gallery","Culross","Fife","NTS","17th century","Pre-industrial","Account books"],
+    lat:56.0561, lng:-3.6278,
+    source:"NTS, Fife Ghost Guide",
+    summary:"Culross Palace's paranormal reports are gentle and historically specific — a merchant going about his business, apparently unaware that several centuries have passed. The painted gallery produces the most consistent accounts, with the apparition described by visitors who had no prior knowledge of the building's commercial function. Culross as a whole is considered one of Scotland's most atmospherically intense historic towns.",
+    testimonies:[]
+  },
+  {
+    id:218, name:"Machrie Moor", city:"Isle of Arran", region:"Scotland", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Historic Environment Scotland — free access",
+    bookingUrl:"https://www.historicenvironment.scot/",
+    mapsUrl:"https://maps.google.com/?q=Machrie+Moor+Isle+of+Arran",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Machrie_Moor_Standing_Stones.jpg/640px-Machrie_Moor_Standing_Stones.jpg",
+    desc:"A remarkable Bronze Age landscape on the Isle of Arran containing six stone circles, standing stones, cairns and hut circles — one of Scotland's most significant prehistoric sites. The moor produces a distinctive paranormal atmosphere unlike any other Scottish location — not specific apparitions but an overwhelming sense of ancient presence, time displacement, and what investigators describe as a feeling of being observed by something very old. The red sandstone monolith known as Fingal's Cauldron Seat stands over 5 metres tall.",
+    tags:["Bronze Age","Stone circles","Standing stones","Isle of Arran","Prehistoric","Fingal","Ancient presence","Free"],
+    lat:55.5667, lng:-5.3167,
+    source:"Historic Environment Scotland, Arran Ghost Guide",
+    summary:"Machrie Moor's paranormal reputation is atmospheric rather than apparition-based — investigators and walkers consistently report a sense of temporal displacement and ancient observation that is qualitatively different from conventional haunted site experiences. The site's 4,000-year human history and its concentration of prehistoric monuments create a genuinely unique investigation environment. Free to visit; accessible by a 1.5-mile walk from the road.",
+    testimonies:[]
+  },
+  {
+    id:219, name:"Stirling Old Town Jail", city:"Stirling", region:"Scotland", type:"Prison", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£9pp", priceNote:"Adults from £9pp · Ghost events available",
+    bookingUrl:"https://www.oldtownjail.com/",
+    mapsUrl:"https://maps.google.com/?q=Stirling+Old+Town+Jail",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Old_Town_Jail_Stirling.jpg/640px-Old_Town_Jail_Stirling.jpg",
+    desc:"A Victorian prison in Stirling's Old Town, operational from 1847 to 1935 and now a heritage attraction. The execution yard — where public hangings took place — is the most paranormally active area. A male apparition believed to be a hanged prisoner appears near the gallows position, and the solitary confinement cells produce overwhelming reports of distress and claustrophobia from investigators who have no prior knowledge of their function.",
+    tags:["Victorian prison","Execution yard","Gallows","Solitary confinement","Stirling","Old Town","Heritage","Hanged prisoner"],
+    lat:56.1192, lng:-3.9364,
+    source:"oldtownjail.com, Stirling Ghost Guide",
+    summary:"Stirling Old Town Jail's execution yard is among the most consistently active outdoor investigation spaces in Scotland — the male apparition near the gallows position is independently reported by investigators from multiple companies. The solitary confinement cells produce physical responses including hyperventilation, disorientation and distress in investigators who are told only afterwards that they were standing in isolation cells. The building's proximity to Stirling Castle adds to the historical density of the area.",
+    testimonies:[]
+  },
+  {
+    id:220, name:"Bodelwyddan Castle", city:"Bodelwyddan", region:"Wales", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£9pp", priceNote:"Adults from £9pp · Ghost events available",
+    bookingUrl:"https://www.bodelwyddan-castle.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Bodelwyddan+Castle+Denbighshire",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Bodelwyddan_Castle.jpg/640px-Bodelwyddan_Castle.jpg",
+    desc:"A 19th-century Victorian Gothic castle in Denbighshire, North Wales, that served as a military hospital during WWI. The hospital connection generates the primary paranormal activity — apparitions of uniformed nurses and soldiers in the former ward areas. A former patient who died here walks the corridor between what were the main wards. The castle also hosts a collection of Victorian portraits, several of which are reported to move or have their subjects appear elsewhere in the castle.",
+    tags:["WWI hospital","Victorian Gothic","Nurse apparition","Soldier apparition","Denbighshire","Moving portraits","North Wales"],
+    lat:53.2667, lng:-3.5500,
+    source:"bodelwyddan-castle.co.uk, North Wales Ghost Guide",
+    summary:"Bodelwyddan's WWI hospital history is extensively documented and provides a clear historical anchor for its paranormal reports. The nurse and soldier apparitions are consistently described in period WWI dress rather than generic period clothing, which investigators consider an indicator of historical specificity. The moving portrait accounts are unusual — several independent visitors have reported that subjects from the Victorian portrait collection appear in different locations within the castle.",
+    testimonies:[]
+  },
+  {
+    id:221, name:"Sker House", city:"Bridgend", region:"Wales", type:"House", scare:4,
+    rating:0, reviews:0, featured:false,
+    price:"£35pp", priceNote:"Ghost events via various operators",
+    bookingUrl:"https://www.hauntedrooms.co.uk/",
+    mapsUrl:"https://maps.google.com/?q=Sker+House+Bridgend+Wales",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Sker_House.jpg/640px-Sker_House.jpg",
+    desc:"An isolated ruined manor house on the Glamorgan Heritage Coast, setting of R.D. Blackmore's novel The Maid of Sker. The Maid of Sker herself — Elizabeth Williams, a young woman imprisoned in the house by her father to prevent her marrying a harpist she loved, who died of a broken heart — is the primary apparition. Her weeping is heard throughout the ruins, and investigators report one of the most emotionally intense atmospheres of any Welsh location.",
+    tags:["Maid of Sker","Elizabeth Williams","Broken heart","Harpist","Isolated ruin","Glamorgan Heritage Coast","Blackmore","Weeping"],
+    lat:51.5000, lng:-3.7167,
+    source:"higgypop.com/hauntings/wales, Glamorgan Ghost Guide",
+    summary:"Sker House's haunting is rooted in one of Wales's most poignant historical stories — Elizabeth Williams's imprisonment and death from grief is documented in contemporary accounts and was the basis for Blackmore's novel. The weeping heard throughout the ruins is reported by investigators who have no prior knowledge of Elizabeth's story. The building's coastal isolation and ruinous state create one of Wales's most atmospherically powerful investigation environments.",
+    testimonies:[]
+  },
+  {
+    id:222, name:"Londonderry Workhouse", city:"Derry", region:"Northern Ireland", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"Free", priceNote:"Workhouse Museum Derry — free admission",
+    bookingUrl:"https://www.derrycity.gov.uk/",
+    mapsUrl:"https://maps.google.com/?q=Workhouse+Museum+Derry+Londonderry",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Derry_Workhouse_Museum.jpg/640px-Derry_Workhouse_Museum.jpg",
+    desc:"A former Victorian workhouse in Derry that also served as a fever hospital during the Great Famine, when thousands of Irish poor sought refuge here — many dying within its walls. Now a museum covering both the workhouse and WWII history. The famine connection gives this location a unique historical weight — the sound of crying and distress has been reported in the former fever ward, and a female figure in period dress appears near the original entrance gates.",
+    tags:["Great Famine","Victorian workhouse","Fever hospital","Derry","Northern Ireland","Museum","Crying","Free"],
+    lat:54.9967, lng:-7.3228,
+    source:"Derry City Council, Northern Ireland Ghost Guide",
+    summary:"The Londonderry Workhouse's famine history distinguishes it from most British workhouse hauntings — the level of suffering experienced here during the 1840s famine was extreme even by the grim standards of Victorian poorhouses. Thousands died within these walls during the worst years of the famine. The fever ward produces the most consistent paranormal reports, with audio phenomena — crying, moaning — recorded during silent vigils by investigators from multiple teams.",
+    testimonies:[]
+  },
+  {
+    id:223, name:"Kinnitty Castle", city:"Birr", region:"Ireland", type:"Castle", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£120pp+", priceNote:"Luxury hotel — rooms from €120 · Ghost events available",
+    bookingUrl:"https://www.kinnittycastlehotel.com/",
+    mapsUrl:"https://maps.google.com/?q=Kinnitty+Castle+Birr+Offaly",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Kinnitty_Castle%2C_County_Offaly.jpg/640px-Kinnitty_Castle%2C_County_Offaly.jpg",
+    desc:"A Gothic Revival castle in County Offaly, built in 1213 on land connected to the High King Brian Boru and now a luxury hotel. A monk apparition is reported in the corridors — the castle was built near the site of a medieval monastery. The ghost of Bernard the Builder — a monk who allegedly haunts the room named after him — is the most specific account, reported by guests in that room across multiple decades of the hotel's operation.",
+    tags:["Brian Boru","Gothic Revival","Monk","Bernard the Builder","Offaly","Ireland","Luxury hotel","Medieval monastery"],
+    lat:53.1000, lng:-7.7833,
+    source:"kinnittycastlehotel.com, Irish Ghost Guide",
+    summary:"Kinnitty Castle's paranormal history is anchored in its medieval monastic connections — the original monastery on the site was associated with St Finan in the 6th century, and the land's religious significance predates the current castle by centuries. Bernard the Builder's room produces the most consistent guest reports, with independent visitors describing the same grey-robed figure without prior knowledge of the room's association. The castle's location near the Slieve Bloom Mountains adds to its isolation and atmosphere.",
+    testimonies:[]
+  },
+  {
+    id:224, name:"Nothe Fort", city:"Weymouth", region:"England — South", type:"Other", scare:3,
+    rating:0, reviews:0, featured:false,
+    price:"£6pp", priceNote:"Adults from £6pp · Ghost events available",
+    bookingUrl:"https://www.nothefort.org.uk/",
+    mapsUrl:"https://maps.google.com/?q=Nothe+Fort+Weymouth+Dorset",
+    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Nothe_Fort%2C_Weymouth.jpg/640px-Nothe_Fort%2C_Weymouth.jpg",
+    desc:"A Victorian coastal fortification in Weymouth built between 1860 and 1872, with 70 rooms on three levels built into the headland. Garrisoned continuously until WWII, the fort's tunnels and casements produce consistent paranormal reports. A soldier in Victorian uniform is seen in the tunnel network, and a young woman connected to a wartime tragedy is reported near the seaward casements. The fort's isolation above the sea creates an unusually intense investigation atmosphere.",
+    tags:["Victorian fort","Tunnel network","Victorian soldier","WWII","Weymouth","Dorset","Coastal","Casements"],
+    lat:50.6083, lng:-2.4417,
+    source:"nothefort.org.uk, Dorset Ghost Guide",
+    summary:"Nothe Fort's tunnel network — 70 rooms built into solid rock above the sea — creates one of the South West's most atmospheric investigation environments. The Victorian soldier apparition is reported independently in the tunnel sections by investigators from different companies on separate nights. The young woman near the seaward casements is associated with a WWII maritime tragedy, though the specific incident has not been publicly identified.",
+    testimonies:[]
+  }
 ];
 
 
@@ -5728,7 +6734,56 @@ let currentView = 'grid';
 let activeTab = 'all';
 let selectedStars = 0;
 let bucketList = JSON.parse(localStorage.getItem('veil_bucket') || '[]');
-function saveBucket(){ localStorage.setItem('veil_bucket', JSON.stringify(bucketList)); }
+let bucketSyncTimer = null;
+
+function saveBucket(){
+  localStorage.setItem('veil_bucket', JSON.stringify(bucketList));
+  // Debounced cloud sync if logged in
+  if(currentUser){
+    clearTimeout(bucketSyncTimer);
+    bucketSyncTimer = setTimeout(syncBucketToCloud, 1500);
+  }
+}
+
+async function syncBucketToCloud(){
+  if(!currentUser || !_supabase) return;
+  try{
+    const payload = {
+      user_id: currentUser.id,
+      bucket: JSON.stringify(bucketList),
+      notes: document.getElementById('invNotes')?.value || '',
+      updated_at: new Date().toISOString()
+    };
+    await _supabase.from('investigator_journals').upsert(payload, { onConflict: 'user_id' });
+  }catch(e){ console.log('Sync skipped:', e.message); }
+}
+
+async function loadBucketFromCloud(){
+  if(!currentUser || !_supabase) return;
+  try{
+    const { data, error } = await _supabase
+      .from('investigator_journals')
+      .select('bucket,notes')
+      .eq('user_id', currentUser.id)
+      .single();
+    if(error || !data) return;
+    if(data.bucket){
+      const cloudBucket = JSON.parse(data.bucket);
+      // Merge: cloud wins for visited status, local wins for new items
+      const merged = [...cloudBucket];
+      bucketList.forEach(local => {
+        if(!merged.find(c => c.id === local.id)) merged.push(local);
+      });
+      bucketList = merged;
+      localStorage.setItem('veil_bucket', JSON.stringify(bucketList));
+    }
+    if(data.notes){
+      const notesEl = document.getElementById('invNotes');
+      if(notesEl && !notesEl.value) notesEl.value = data.notes;
+    }
+    renderInvestigator();
+  }catch(e){ console.log('Load skipped:', e.message); }
+}
 
 const SCARE_LABELS = ['','Mild unease','Unsettling','Frightening','Terrifying','Extreme — enter at own risk'];
 
@@ -5997,7 +7052,7 @@ function renderGrid(data){
     <div class="loc-card${l.featured?' featured':''}">
       <div class="card-img-wrap" onclick="openLocation(${l.id})" style="cursor:pointer;">
         ${l.img
-          ? `<img class="card-img" src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';if(this.nextSibling)this.nextSibling.style.display='flex';">
+          ? `<img class="card-img" src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p){var d=p.querySelector('.card-img-placeholder');if(d)d.style.display='flex';}">
              <div class="card-img-placeholder" style="display:flex;">${typeIcon(l.type)}<span style="position:absolute;bottom:8px;left:10px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">${l.type}</span></div>`
           : `<div class="card-img-placeholder">${typeIcon(l.type)}<span style="position:absolute;bottom:8px;left:10px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">${l.type}</span></div>`}
         ${l.price ? `<span class="price-badge${free?' free-badge':''}">${free?'Free':l.price}</span>` : ''}
@@ -6158,7 +7213,7 @@ function renderExtremeGrid(){
     return `
     <div class="loc-card featured">
       <div class="card-img-wrap" onclick="openLocation(${l.id})" style="cursor:pointer;">
-        ${l.img?`<img class="card-img" src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';if(this.nextSibling)this.nextSibling.style.display='flex';"><div class="card-img-placeholder" style="display:flex;">${typeIcon(l.type)}</div>`:`<div class="card-img-placeholder">${typeIcon(l.type)}</div>`}
+        ${l.img?`<img class="card-img" src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p){var d=p.querySelector('.card-img-placeholder');if(d)d.style.display='flex';}"><div class="card-img-placeholder" style="display:flex;">${typeIcon(l.type)}</div>`:`<div class="card-img-placeholder">${typeIcon(l.type)}</div>`}
         <span class="price-badge">${l.price||'See details'}</span>
       </div>
       <div class="card-body" onclick="openLocation(${l.id})" style="cursor:pointer;">
@@ -6319,7 +7374,7 @@ function setReportStar(n){
 }
 
 function openLocation(id){
-  const l=LOCATIONS.find(x=>x.id===id);
+  const l=LOCATIONS.find(x=>x.id===Number(id));
   if(!l) return;
   const inList=bucketList.some(b=>b.id===id&&!b.visited);
   const isVisited=bucketList.some(b=>b.id===id&&b.visited);
@@ -6725,82 +7780,79 @@ function exportPDF(){
   function locationBlock(b){
     const l = LOCATIONS.find(x => x.id === b.id);
     if(!l) return;
-    checkPage(35);
 
-    // Card background
-    doc.setFillColor(...white);
-    doc.setDrawColor(225,224,218);
-    doc.roundedRect(margin, y, contentW, 2, 0, 0, 'F'); // top border accent
+    // Pre-calculate block height to avoid mid-block page breaks
+    const shortDesc = l.desc ? (l.desc.length > 220 ? l.desc.slice(0, 220) + '...' : l.desc) : '';
+    const descLines = shortDesc ? doc.splitTextToSize(shortDesc, contentW - 10).length : 0;
+    const noteLines = b.note ? doc.splitTextToSize('Note: ' + b.note, contentW - 14).length : 0;
+    const estimatedH = 7 + 7 + 6 + (descLines * 4.5) + (noteLines ? noteLines * 4 + 8 : 0) + (l.bookingUrl ? 7 : 0) + 10;
+    checkPage(Math.max(40, estimatedH));
+
+    // Teal left accent bar
     doc.setFillColor(...teal);
-    doc.rect(margin, y, 3, 0, 'F');
-
-    const cardTop = y;
+    doc.rect(margin, y, 3, estimatedH - 4, 'F');
 
     // Type label
     doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...teal);
-    doc.text((l.type || '').toUpperCase(), margin + 6, y + 5);
-    y += 7;
+    doc.text((l.type || '').toUpperCase(), margin + 8, y + 5);
+    y += 8;
 
     // Name
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...navy);
-    const nameLines = doc.splitTextToSize(l.name, contentW - 40);
-    doc.text(nameLines, margin + 6, y);
+    const nameLines = doc.splitTextToSize(l.name, contentW - 45);
+    doc.text(nameLines, margin + 8, y);
 
-    // Scare on right
-    scareBar(l.scare || 0, margin + contentW - 28, y - 1);
-    y += nameLines.length * 5.5;
+    // Scare dots on right
+    scareBar(l.scare || 0, margin + contentW - 30, y - 1);
+    y += nameLines.length * 6;
 
-    // City + price row
-    doc.setFontSize(8);
+    // City + price — no emoji, plain text for jsPDF compatibility
+    doc.setFontSize(8.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...grey);
-    const cityPrice = `📍 ${l.city || ''}${l.price ? '  ·  ' + l.price : ''}`;
-    doc.text(doc.splitTextToSize(cityPrice, contentW - 10), margin + 6, y);
-    y += 5;
+    const cityStr = [l.city, l.price].filter(Boolean).join('  |  ');
+    doc.text(doc.splitTextToSize(cityStr, contentW - 12), margin + 8, y);
+    y += 5.5;
 
-    // Description (capped at 200 chars)
-    if(l.desc){
+    // Description
+    if(shortDesc){
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(74,74,90);
-      const shortDesc = l.desc.length > 220 ? l.desc.slice(0, 220) + '…' : l.desc;
-      const descLines = doc.splitTextToSize(shortDesc, contentW - 10);
-      checkPage(descLines.length * 3.5 + 8);
-      doc.text(descLines, margin + 6, y);
-      y += descLines.length * 3.8 + 2;
+      doc.setTextColor(74, 74, 90);
+      const dLines = doc.splitTextToSize(shortDesc, contentW - 12);
+      doc.text(dLines, margin + 8, y);
+      y += dLines.length * 4.5 + 2;
     }
 
     // Personal note
     if(b.note){
-      checkPage(12);
       doc.setFillColor(232, 248, 246);
-      const noteLines = doc.splitTextToSize('Note: ' + b.note, contentW - 14);
-      doc.roundedRect(margin + 4, y - 1, contentW - 8, noteLines.length * 4 + 4, 1, 1, 'F');
+      const nLines = doc.splitTextToSize('Note: ' + b.note, contentW - 16);
+      doc.roundedRect(margin + 6, y - 1, contentW - 10, nLines.length * 4.5 + 5, 1, 1, 'F');
       doc.setFontSize(8);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(...teal);
-      doc.text(noteLines, margin + 8, y + 3);
-      y += noteLines.length * 4 + 6;
+      doc.text(nLines, margin + 10, y + 3.5);
+      y += nLines.length * 4.5 + 8;
     }
 
     // Booking link
     if(l.bookingUrl){
-      checkPage(8);
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
       doc.setTextColor(...teal);
-      doc.textWithLink('Book / more info →', margin + 6, y, { url: l.bookingUrl });
-      y += 5;
+      doc.textWithLink('Book / more info ->', margin + 8, y, { url: l.bookingUrl });
+      y += 6;
     }
 
     // Bottom divider
-    doc.setDrawColor(225,224,218);
-    doc.line(margin, y + 1, margin + contentW, y + 1);
-    y += 6;
+    doc.setDrawColor(225, 224, 218);
+    doc.line(margin, y + 2, margin + contentW, y + 2);
+    y += 8;
   }
 
   // ── Cover page ──
