@@ -11639,7 +11639,7 @@ function setView(v, btn){
 
 // ── BUCKET LIST ───────────────────────────────────────────────────────────────
 function toggleBucket(id, btn){
-  const loc = LOCATIONS.find(l=>l.id===id);
+  const loc = LOCATIONS.find(l=>l&&l.id===id);
   if(!loc) return;
   const existing = bucketList.find(b=>b&&b.id===id);
   if(!existing){
@@ -11663,7 +11663,7 @@ function toggleBucket(id, btn){
 }
 
 function toggleBucketFromModal(id){ id=Number(id);
-  const loc=LOCATIONS.find(l=>l.id===id);
+  const loc=LOCATIONS.find(l=>l&&l.id===id);
   if(!loc) return;
   const btn=document.getElementById('modalBucketBtn');
   const existing=bucketList.find(b=>b&&b.id===id);
@@ -11685,7 +11685,7 @@ function toggleBucketFromModal(id){ id=Number(id);
 
 function openReport(id){
   id = Number(id);
-  const loc = LOCATIONS.find(l=>l.id===id);
+  const loc = LOCATIONS.find(l=>l&&l.id===id);
   if(!loc) return;
   reportLocId = id;
   const el = document.getElementById('reportLocName');
@@ -11894,7 +11894,7 @@ function submitReview(locId){
   const text=document.getElementById(`rev_text_${locId}`).value.trim();
   if(!text){showToast('Missing','Please describe your experience');return;}
   if(!selectedStars){showToast('Missing','Please select a star rating');return;}
-  const loc=LOCATIONS.find(l=>l.id===locId);
+  const loc=LOCATIONS.find(l=>l&&l.id===locId);
   loc.testimonies.unshift({author,source:'Added by visitor',stars:selectedStars,text});
   loc.reviews++;
   showToast('Testimony recorded','Your account has been added');
@@ -11903,7 +11903,7 @@ function submitReview(locId){
   // Also save to community feed store
   try{
     const feedStore = JSON.parse(localStorage.getItem('veil_testimonies')||'[]');
-    const l2 = LOCATIONS.find(x=>x.id===locId);
+    const l2 = LOCATIONS.find(x=>x&&x.id===locId);
     feedStore.push({text:reviewText, author:authorName||'Anonymous', stars:rating,
       source:'Visitor submission', locName:l2?l2.name:'', locId:locId, locCity:l2?l2.city:''});
     localStorage.setItem('veil_testimonies', JSON.stringify(feedStore));
@@ -11921,7 +11921,7 @@ function renderInvestigator(){
   document.getElementById('invStatPct').textContent=pct+'%';
 
   const renderItem=(b,isV)=>{
-    const loc=LOCATIONS.find(l=>l.id===b.id);
+    const loc=LOCATIONS.find(l=>l&&l.id===b.id);
     return `<div class="bl-item${isV?' visited-item':' want-item'}">
       <div class="bl-check${isV?' checked':''}" onclick="toggleVisited(${b.id})">${isV?'✓':''}</div>
       <div class="bl-info">
@@ -12171,7 +12171,7 @@ function exportPDF(){
   }
 
   function locationBlock(b){
-    const l = LOCATIONS.find(x => x.id === b.id);
+    const l = LOCATIONS.find(x => x&&x.id === b.id);
     if(!l) return;
 
     // Pre-calculate block height to avoid mid-block page breaks
@@ -12369,7 +12369,7 @@ function importShare(){
     const data=JSON.parse(decodeURIComponent(escape(atob(param))));
     if(data.b){
       data.b.forEach(item=>{
-        const loc=LOCATIONS.find(l=>l.id===item.i);
+        const loc=LOCATIONS.find(l=>l&&l.id===item.i);
         if(!loc||bucketList.find(b=>b.id===item.i)) return;
         bucketList.push({id:item.i,name:loc.name,city:loc.city,scare:loc.scare,visited:item.v===1,note:item.n||''});
       });
@@ -12389,7 +12389,7 @@ function checkShareParam(){
 function printList(){
   const want=bucketList.filter(b=>b&&!b.visited);
   const visited=bucketList.filter(b=>b&&b.visited);
-  const rows=(arr,h)=>arr.length?`<h2>${h}</h2>`+arr.map(b=>{const l=LOCATIONS.find(x=>x.id===b.id);return `<div style="border-bottom:1px solid #eee;padding:8px 0;"><strong>${b.name}</strong> — ${b.city} ${l&&l.price?'('+l.price+')':''}<br><em>${b.note||'No notes'}</em></div>`;}).join(''):'';
+  const rows=(arr,h)=>arr.length?`<h2>${h}</h2>`+arr.map(b=>{const l=LOCATIONS.find(x=>x&&x.id===b.id);return `<div style="border-bottom:1px solid #eee;padding:8px 0;"><strong>${b.name}</strong> — ${b.city} ${l&&l.price?'('+l.price+')':''}<br><em>${b.note||'No notes'}</em></div>`;}).join(''):'';
   const win=window.open('','_blank');
   win.document.write(`<html><head><title>Ghost Planner — Investigation List</title><style>body{font-family:Georgia,serif;max-width:700px;margin:2rem auto;padding:1rem;}h1{font-size:24px;margin-bottom:4px;}h2{margin-top:1.5rem;font-size:14px;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #1a1a2e;padding-bottom:6px;color:#1a1a2e;}</style></head><body>
     <h1>Ghost Planner — Investigator's Journal</h1><p style="color:#999;font-size:12px;">Printed ${new Date().toLocaleDateString('en-GB')}</p>
@@ -12400,7 +12400,7 @@ function printList(){
 }
 function exportCSV(){
   const rows=[['Name','City','Type','Price','Scare','Status','Notes']];
-  bucketList.forEach(b=>{const l=LOCATIONS.find(x=>x.id===b.id);rows.push([b.name,b.city,l?.type||'',l?.price||'',b.scare,b.visited?'Investigated':'Want to visit',b.note||'']);});
+  bucketList.forEach(b=>{const l=LOCATIONS.find(x=>x&&x.id===b.id);rows.push([b.name,b.city,l?.type||'',l?.price||'',b.scare,b.visited?'Investigated':'Want to visit',b.note||'']);});
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
@@ -12565,7 +12565,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 // ── ROUTE PLANNER ────────────────────────────────────────────────────────────
 function toggleRoute(id){ id=Number(id);
-  const l = LOCATIONS.find(x=>x.id===id);
+  const l = LOCATIONS.find(x=>x&&x.id===id);
   if(!l) return;
   const idx = routeStops.findIndex(r=>r&&r.id===id);
   if(idx>-1){
@@ -12667,7 +12667,7 @@ function printRoute(){
 // ── REPORT BUILDER ────────────────────────────────────────────────────────────
 function generateReport(){
   const locId = reportLocId;
-  const l = locId ? LOCATIONS.find(x=>x.id===locId) : null;
+  const l = locId ? LOCATIONS.find(x=>x&&x.id===locId) : null;
   const date = document.getElementById('rDate').value;
   const time = document.getElementById('rTime').value;
   const team = document.getElementById('rTeamSize').value;
@@ -12751,6 +12751,30 @@ function generateReport(){
     align-items: center;
   }
 }
+
+/* ── Scroll to top button ── */
+#scrollTopBtn {
+  display: none;
+  position: fixed;
+  bottom: 140px;
+  right: 16px;
+  z-index: 8000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  border: 2px solid var(--teal);
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+@media(min-width:701px){
+  #scrollTopBtn { display: none !important; }
+}
 </style></head><body>
   <h1>👻 Investigation Report</h1>
   <p style="font-size:18px;font-weight:700;margin-bottom:0;">${l?l.name:locId||'Unknown Location'}</p>
@@ -12773,7 +12797,7 @@ function generateReport(){
 
 function saveReportToJournal(){
   const locId = reportLocId;
-  const l = locId ? LOCATIONS.find(x=>x.id===locId) : null;
+  const l = locId ? LOCATIONS.find(x=>x&&x.id===locId) : null;
   if(!l){ showToast('No location','Open a location first'); return; }
   // Mark as investigated in bucket list
   const existing = bucketList.find(b=>b.id===locId);
@@ -12921,23 +12945,26 @@ document.addEventListener('DOMContentLoaded',()=>{
   <div class="welcome-sub">Welcome to Ghost Planner</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
-// Scroll to top button
-window.addEventListener('scroll', function(){
-  const btn = document.getElementById('scrollTopBtn');
-  if(!btn) return;
-  if(window.scrollY > 400){
-    btn.style.display = 'flex';
-  } else {
-    btn.style.display = 'none';
+
+// Scroll to top — mobile only
+(function(){
+  function onScroll(){
+    var scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+    var btn = document.getElementById('scrollTopBtn');
+    if(!btn) return;
+    if(scrollY > 300){
+      btn.style.display = 'flex';
+    } else {
+      btn.style.display = 'none';
+    }
   }
-});
+  window.addEventListener('scroll', onScroll, {passive:true});
+  document.addEventListener('scroll', onScroll, {passive:true});
+})();
 </script>
 
-<!-- SCROLL TO TOP -->
-<button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" 
-  style="display:none;position:fixed;bottom:80px;right:16px;z-index:9000;
-  width:44px;height:44px;border-radius:50%;background:var(--teal);color:#fff;
-  border:none;font-size:22px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.25);
-  align-items:center;justify-content:center;">↑</button>
+
+<!-- SCROLL TO TOP (mobile only) -->
+<button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 </body>
 </html>
