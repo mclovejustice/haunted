@@ -11609,7 +11609,7 @@ function renderGrid(data){
     <div class="loc-card${l.featured?' featured':''}">
       <div class="card-img-wrap" onclick="openLocation(${l.id})" style="cursor:pointer;">
         ${l.img
-          ? `<img class="card-img" src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p){var d=p.querySelector('.card-img-placeholder');if(d)d.style.display='flex';}">
+          ? `<img class="card-img" src="${l.img}" referrerpolicy="no-referrer" alt="${l.name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p){var d=p.querySelector('.card-img-placeholder');if(d)d.style.display='flex';}">
              <div class="card-img-placeholder" style="display:flex;">${typeIcon(l.type)}<span style="position:absolute;bottom:8px;left:10px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">${l.type}</span></div>`
           : `<div class="card-img-placeholder">${typeIcon(l.type)}<span style="position:absolute;bottom:8px;left:10px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);">${l.type}</span></div>`}
         ${l.price ? `<span class="price-badge${free?' free-badge':''}">${free?'Free':l.price}</span>` : ''}
@@ -11655,7 +11655,7 @@ function renderList(data){
     return `
     <div class="loc-list-item">
       ${l.img
-        ? `<img class="list-thumb" src="${l.img}" alt="${l.name}" onerror="this.outerHTML='<div class=\\'list-thumb-placeholder\\'>🏚</div>'">`
+        ? `<img class="list-thumb" src="${l.img}" referrerpolicy="no-referrer" alt="${l.name}" onerror="this.outerHTML='<div class=\\'list-thumb-placeholder\\'>🏚</div>'">`
         : `<div class="list-thumb-placeholder">${l.type==='Castle'?'🏰':l.type==='Prison'?'⛓':'🏚'}</div>`}
       <div onclick="openLocation(${l.id})" style="cursor:pointer;">
         <div class="list-name">${l.name}</div>
@@ -11770,7 +11770,7 @@ function renderExtremeGrid(){
     return `
     <div class="loc-card featured">
       <div class="card-img-wrap" onclick="openLocation(${l.id})" style="cursor:pointer;">
-        ${l.img?`<img class="card-img" src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p){var d=p.querySelector('.card-img-placeholder');if(d)d.style.display='flex';}"><div class="card-img-placeholder" style="display:flex;">${typeIcon(l.type)}</div>`:`<div class="card-img-placeholder">${typeIcon(l.type)}</div>`}
+        ${l.img?`<img class="card-img" src="${l.img}" referrerpolicy="no-referrer" alt="${l.name}" loading="lazy" onerror="this.style.display='none';var p=this.parentNode;if(p){var d=p.querySelector('.card-img-placeholder');if(d)d.style.display='flex';}"><div class="card-img-placeholder" style="display:flex;">${typeIcon(l.type)}</div>`:`<div class="card-img-placeholder">${typeIcon(l.type)}</div>`}
         <span class="price-badge">${l.price||'See details'}</span>
       </div>
       <div class="card-body" onclick="openLocation(${l.id})" style="cursor:pointer;">
@@ -11956,7 +11956,7 @@ function openLocation(id){
   const inRoute = routeStops.some(r=>r&&r.id===id);
 
   document.getElementById('modalContent').innerHTML=`
-    ${l.img?`<img class="modal-img" src="${l.img}" alt="${l.name}" onerror="this.style.display='none'">`:''}
+    ${l.img?`<img class="modal-img" src="${l.img}" referrerpolicy="no-referrer" alt="${l.name}" onerror="this.style.display='none'">`:''}
     <div class="modal-body">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
         <div class="modal-type">${l.type} · ${l.region}</div>
@@ -12714,7 +12714,7 @@ function renderNearMeResults(){
         <div class="near-me-item" onclick="openLocation(${l.id})">
           <div class="near-me-thumb">
             ${l.img
-              ? `<img src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.display='none';this.parentNode.textContent='${typeIcon(l.type)}';">`
+              ? `<img src="${l.img}" referrerpolicy="no-referrer" alt="${l.name}" loading="lazy" onerror="this.style.display='none';this.parentNode.textContent='${typeIcon(l.type)}';">`
               : typeIcon(l.type)}
           </div>
           <div class="near-me-item-info">
