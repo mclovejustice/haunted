@@ -2107,15 +2107,11 @@ footer a{color:var(--teal);text-decoration:none;}
         </button>
         <div class="dropdown">
           <div class="dropdown-label">Browse by region</div>
+          <button onclick="filterByRegion('England');showDirectory()">England</button>
           <button onclick="filterByRegion('Scotland');showDirectory()">Scotland</button>
           <button onclick="filterByRegion('Wales');showDirectory()">Wales</button>
           <button onclick="filterByRegion('Northern Ireland');showDirectory()">Northern Ireland</button>
-          <div class="dropdown-divider"></div>
-          <button onclick="filterByRegion('England');showDirectory()">England</button>
-          <button onclick="filterByRegion('England');showDirectory()">England</button>
-          <button onclick="filterByRegion('England');showDirectory()">England</button>
-          <button onclick="filterByRegion('England');showDirectory()">England</button>
-          <button onclick="filterByRegion('England');showDirectory()">England</button>
+          <button onclick="filterByRegion('Ireland');showDirectory()">Ireland</button>
           <div class="dropdown-divider"></div>
           <button onclick="filterByRegion('');showDirectory()">All regions</button>
         </div>
@@ -3450,7 +3446,7 @@ footer a{color:var(--teal);text-decoration:none;}
       <div class="form-grid">
         <div class="form-row"><label class="form-label">Town / City *</label><input type="text" id="sub_city" placeholder="e.g. Sudbury"></div>
         <div class="form-row"><label class="form-label">Region *</label>
-          <select id="sub_region"><option value="">Select…</option><option>Scotland</option><option>Wales</option><option>Northern Ireland</option><option>England</option><option>England</option><option>England</option><option>England</option><option>England</option></select>
+          <select id="sub_region"><option value="">Select…</option><option value="England">England</option><option value="Scotland">Scotland</option><option value="Wales">Wales</option><option value="Northern Ireland">Northern Ireland</option><option value="Ireland">Ireland</option></select>
         </div>
       </div>
       <div class="form-grid">
